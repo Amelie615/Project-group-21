@@ -1,0 +1,1 @@
+import * as PromptSync from "prompt-sync";
