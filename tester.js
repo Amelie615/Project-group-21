@@ -23,19 +23,25 @@ var units = ["ml", "l", "g", "dl"];
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
-function viewRecipe(recipe) {
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~");
-    console.log(recipe.name);
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    for (var i = 0; i < recipe.ingredients.length; i++) {
-        console.log(recipe.ingredients[i] + " " + (0, list_1.head)(recipe.amount[i]) + (0, list_1.tail)(recipe.amount[i]) + "\n");
+function viewRecipe(id, hashedTable) {
+    var recipe = (0, hashtables_1.ph_lookup)(hashedTable, id);
+    if (recipe === undefined) {
+        console.log("error");
     }
-    console.log("servings" + " " + recipe.servings + "\n");
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~");
-    console.log("instructions");
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    console.log(recipe.description + "\n");
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    else {
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~");
+        console.log(recipe.name);
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        for (var i = 0; i < recipe.ingredients.length; i++) {
+            console.log(recipe.ingredients[i] + " " + (0, list_1.head)(recipe.measurements[i]) + (0, list_1.tail)(recipe.measurements[i]) + "\n");
+        }
+        console.log("servings" + " " + recipe.servings + "\n");
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~");
+        console.log("instructions");
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        console.log(recipe.instructions + "\n");
+        console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    }
 }
 function createRecipe(hashedTable, keysToHashed) {
     var newRecipe = {
@@ -72,31 +78,51 @@ function createRecipe(hashedTable, keysToHashed) {
     (0, hashtables_1.ph_insert)(hashedTable, newRecipe.id, newRecipe);
     console.log((0, hashtables_1.ph_lookup)(hashedTable, newRecipe.id));
 }
-function cookbook() {
+function cookbook(tag, hashedTable, keysToHashed) {
+    var _loop_1 = function () {
+        var test = questioneer(["Create Recipe", "View Recipe", "Close cookbook"]);
+        switch (test) {
+            case (1):
+                createRecipe(hashedTable, keysToHashed);
+                break;
+            case (2):
+                //skapa en lista med alla receptnamn
+                //call questioneer -> vi får tbx en siffra som är index + 1
+                //använd indexet för att hitta id och på så sätt displaya receptet
+                var names_1 = [];
+                keysToHashed.forEach(function (element) {
+                    names_1.push((0, list_1.head)(element));
+                });
+                viewRecipe((0, list_1.tail)(keysToHashed[questioneer(names_1) - 1]), hashedTable);
+                break;
+            case (3): return { value: false };
+            default:
+                console.log("Invalid input");
+        }
+    };
+    while (true) {
+        var state_1 = _loop_1();
+        if (typeof state_1 === "object")
+            return state_1.value;
+    }
 }
 function questioneer(vallista) {
     for (var i = 0; i < vallista.length; i++) {
         console.log(i + 1 + " " + vallista[i]);
     }
     var q = prompt(">  ");
-    return (q);
+    return (Number(q));
 }
 function main() {
     var hashedTable = (0, hashtables_1.ph_empty)(13, hashtables_1.hash_id);
-    var keysToHashed = [];
+    var keysToHashed = []; //pair(name, id)
     while (true) {
-        var test = questioneer(["Create Recipe", "View Recipe", "Open cookbook", "Quit"]);
+        var test = questioneer(["Open", "Quit"]);
         switch (test) {
-            case ("1"):
-                createRecipe(hashedTable, keysToHashed);
+            case (1):
+                cookbook("tag", hashedTable, keysToHashed); //Använder inte tagen just nu så bara placeholder
                 break;
-            case ("2"):
-                viewRecipe(firstRecipe); //should be in cookbook in the future
-                break;
-            case ("3"):
-                cookbook();
-                break;
-            case ("4"):
+            case (2):
                 return false;
             default: console.log("default");
         }

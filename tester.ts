@@ -7,13 +7,13 @@ const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 type Measurements = Array<Pair<Number, String>>
 type Ingredients = Array<string> 
 type Recipe = {
-    name: string | null,
-    id: number | null ,
+    name: string,
+    id: number,
     ingredients: Ingredients,
     measurements: Measurements,
-    servings: number | null,
+    servings: number,
     tags: Array<string> | null,
-    instructions: string | null
+    instructions: string
 } 
 /**
  * Datatypes EX:
@@ -37,19 +37,23 @@ function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
 
-function viewRecipe(recipe) {
+function viewRecipe(id, hashedTable) {
+    const recipe : Recipe | undefined = ph_lookup(hashedTable, id)
+    if (recipe === undefined) {console.log("error")}
+    else {
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
     console.log(recipe.name)
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
     for (let i = 0; i < recipe.ingredients.length; i++ ) {
-        console.log(recipe.ingredients[i] + " " + head(recipe.amount[i]) + tail(recipe.amount[i]) + "\n")
+        console.log(recipe.ingredients[i] + " " + head(recipe.measurements[i]) + tail(recipe.measurements[i]) + "\n")
     }
     console.log("servings" + " " + recipe.servings + "\n")
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
     console.log("instructions")
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
-    console.log(recipe.description + "\n")
+    console.log(recipe.instructions + "\n")
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    }
 }
 
 
@@ -89,39 +93,58 @@ function createRecipe(hashedTable, keysToHashed) {
     console.log(ph_lookup(hashedTable, newRecipe.id))
 }
 
-function cookbook() {
-    
-}
-function questioneer(vallista) {
+function cookbook(tag, hashedTable, keysToHashed) {
+    while (true) {
+        const test = questioneer(["Create Recipe", "View Recipe", "Close cookbook"])
+    switch(test) {
+        case(1):
+            createRecipe(hashedTable, keysToHashed)
+            break;
+        case(2):
+            //skapa en lista med alla receptnamn
+            //call questioneer -> vi får tbx en siffra som är index + 1
+            //använd indexet för att hitta id och på så sätt displaya receptet
+            const names : Array<string> = []
+            keysToHashed.forEach(element => {
+                names.push(head(element))
+            });
+            
+            viewRecipe(tail(keysToHashed[questioneer(names)-1]), hashedTable) 
+            break;
+        case(3):
+            return false
+        default:
+            console.log("Invalid input")
+    }
+}}
+function questioneer(vallista) : number {
     for(let i = 0; i < vallista.length; i++) {
         console.log(i + 1 + " " + vallista[i]);
     }
     let q: string = prompt(">  ")
-    return(q);
+    return(Number(q));
 }
 
 function main() {
     const hashedTable = ph_empty(13, hash_id)
-    let keysToHashed = []
-    while (true) {
-        const test = questioneer(["Create Recipe", "View Recipe", "Open cookbook", "Quit"])
-    switch(test) {
-        case("1"):
-            createRecipe(hashedTable, keysToHashed)
-            break;
-        case("2"):
-            viewRecipe(firstRecipe) //should be in cookbook in the future
-            break;
-        case("3"): 
-            cookbook()
-            break;
-        case("4"): 
-            return false;
-        default: console.log("default")
+    let keysToHashed = [] //pair(name, id)
+    while (true) {   
+        const test = questioneer(["Open", "Quit"])
+        switch(test) {
+            case(1): 
+                cookbook("tag", hashedTable, keysToHashed) //Använder inte tagen just nu så bara placeholder
+                break
+            
+            case(2):
+                return false;
+            
+            default: console.log("default")
         }
+        
+    }
     }
 
-}
+
 
 // const hashedTable = ph_empty(13, hash_id) 
 
