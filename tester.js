@@ -19,6 +19,7 @@ var prompt = PromptSync({ sigint: true });
  * Kokbok = probing_hashtable
  *
  */
+var units = ["ml", "l", "g", "dl"];
 function getRandomArbitrary(min, max) {
     return Math.random() * (max - min) + min;
 }
@@ -36,12 +37,42 @@ function viewRecipe(recipe) {
     console.log(recipe.description + "\n");
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n");
 }
-// view_recipe(firstRecipe)
-function createRecipe() {
-    return "hej";
+function createRecipe(hashedTable, keysToHashed) {
+    var newRecipe = {
+        name: prompt("name: > "),
+        id: getRandomArbitrary(1000, 9999), //make sure its unique
+        servings: prompt("Estimated servings: > "),
+        tags: null,
+        instructions: prompt("instructions: > "),
+        ingredients: [],
+        measurements: [],
+    };
+    var done = true;
+    while (done === true) {
+        var addedIngredient = prompt("Name a ingredient > ");
+        newRecipe.ingredients.push(addedIngredient);
+        var ourString = "Enter amount of ".concat(addedIngredient, "> ");
+        var inputMeasurements = prompt(ourString);
+        var integersFromMeasurements = inputMeasurements.match(/(\d+)/)[1]; //asså det här är ju bara inte rätt men inte fel, lös det
+        var lettersFromMeasurements = "";
+        for (var i = 0; i < units.length; i++) {
+            if (inputMeasurements.search(units[i]) === -1) {
+                continue;
+            }
+            else {
+                lettersFromMeasurements = units[i];
+            }
+        }
+        newRecipe.measurements.push((0, list_1.pair)(integersFromMeasurements, lettersFromMeasurements));
+        done = prompt("Add another ingredient? true/ false ") === "true" ? true : false;
+    }
+    console.log(newRecipe.measurements);
+    console.log(newRecipe);
+    keysToHashed.push((0, list_1.pair)(newRecipe.name, newRecipe.id)); //Check så att duplicate of id inte finns
+    (0, hashtables_1.ph_insert)(hashedTable, newRecipe.id, newRecipe);
+    console.log((0, hashtables_1.ph_lookup)(hashedTable, newRecipe.id));
 }
-function option3() {
-    return "hej";
+function cookbook() {
 }
 function questioneer(vallista) {
     for (var i = 0; i < vallista.length; i++) {
@@ -51,23 +82,33 @@ function questioneer(vallista) {
     return (q);
 }
 function main() {
-    var test = questioneer(["Create Recipe", "View Recipe", "option3"]);
-    switch (test) {
-        case ("1"):
-            createRecipe();
-            break;
-        case ("2"):
-            viewRecipe(firstRecipe);
-            break;
-        case ("3"):
-            option3();
-            break;
-        default: console.log("default");
+    var hashedTable = (0, hashtables_1.ph_empty)(13, hashtables_1.hash_id);
+    var keysToHashed = [];
+    while (true) {
+        var test = questioneer(["Create Recipe", "View Recipe", "Open cookbook", "Quit"]);
+        switch (test) {
+            case ("1"):
+                createRecipe(hashedTable, keysToHashed);
+                break;
+            case ("2"):
+                viewRecipe(firstRecipe); //should be in cookbook in the future
+                break;
+            case ("3"):
+                cookbook();
+                break;
+            case ("4"):
+                return false;
+            default: console.log("default");
+        }
     }
 }
-var hashedTable = (0, hashtables_1.ph_empty)(13, hashtables_1.hash_id);
+// const hashedTable = ph_empty(13, hash_id) 
 var firstRecipe = { name: "Goat tomato soup", id: 1001, ingredients: ["tomato", "heavy cream"], amount: [(0, list_1.pair)(200, "g"), (0, list_1.pair)(4, "L")], servings: 4, tags: ["good", "soup"], description: "Here is our mästerverk." };
-(0, hashtables_1.ph_insert)(hashedTable, firstRecipe.id, firstRecipe);
-//ph_lookup(hashedTable, firstRecipe.id)
-console.log((0, hashtables_1.ph_lookup)(hashedTable, firstRecipe.id));
+// ph_insert(hashedTable, firstRecipe.id, firstRecipe)
+// //ph_lookup(hashedTable, firstRecipe.id)
+// console.log(ph_lookup(hashedTable, firstRecipe.id))
+// function KNATCHY(string) {
+//     return(accumulate((x) => x.charat(0), 0, string.split()))
+// }
 main();
+// Array.prototype.reduce()
