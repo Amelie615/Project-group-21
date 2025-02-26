@@ -4,24 +4,9 @@ var PromptSync = require("prompt-sync");
 var list_1 = require("../Project-group-21/lib/list");
 var hashtables_1 = require("./lib/hashtables");
 var prompt = PromptSync({ sigint: true });
-/**
- * Datatypes EX:
- * Recept = {
- *          name: "goat tomato soup"
- *          id: 1001
- *          ingredients: ["tomatoes", "heavy cream"],
- *          amounts: [pair(number, measurment), pair(4, L), ...]
- *          servings: 4
- *          tags: [soup, good]
- *          description: "Mega-lore-core"
- *              }
- *
- * Kokbok = probing_hashtable
- *
- */
 var units = ["ml", "l", "g", "dl"];
 function getRandomArbitrary(min, max) {
-    return Math.random() * (max - min) + min;
+    return Math.floor(Math.random() * (max - min) + min);
 }
 function viewRecipe(id, hashedTable) {
     var recipe = (0, hashtables_1.ph_lookup)(hashedTable, id);
@@ -48,7 +33,7 @@ function createRecipe(hashedTable, keysToHashed) {
         name: prompt("name: > "),
         id: getRandomArbitrary(1000, 9999), //make sure its unique
         servings: prompt("Estimated servings: > "),
-        tags: null,
+        tags: [],
         instructions: prompt("instructions: > "),
         ingredients: [],
         measurements: [],
@@ -86,9 +71,6 @@ function cookbook(tag, hashedTable, keysToHashed) {
                 createRecipe(hashedTable, keysToHashed);
                 break;
             case (2):
-                //skapa en lista med alla receptnamn
-                //call questioneer -> vi får tbx en siffra som är index + 1
-                //använd indexet för att hitta id och på så sätt displaya receptet
                 var names_1 = [];
                 keysToHashed.forEach(function (element) {
                     names_1.push((0, list_1.head)(element));
@@ -111,6 +93,12 @@ function questioneer(vallista) {
         console.log(i + 1 + " " + vallista[i]);
     }
     var q = prompt(">  ");
+    3;
+    3;
+    3;
+    3;
+    3;
+    3;
     return (Number(q));
 }
 function main() {
@@ -128,13 +116,5 @@ function main() {
         }
     }
 }
-// const hashedTable = ph_empty(13, hash_id) 
 var firstRecipe = { name: "Goat tomato soup", id: 1001, ingredients: ["tomato", "heavy cream"], amount: [(0, list_1.pair)(200, "g"), (0, list_1.pair)(4, "L")], servings: 4, tags: ["good", "soup"], description: "Here is our mästerverk." };
-// ph_insert(hashedTable, firstRecipe.id, firstRecipe)
-// //ph_lookup(hashedTable, firstRecipe.id)
-// console.log(ph_lookup(hashedTable, firstRecipe.id))
-// function KNATCHY(string) {
-//     return(accumulate((x) => x.charat(0), 0, string.split()))
-// }
 main();
-// Array.prototype.reduce()
