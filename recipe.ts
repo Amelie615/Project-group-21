@@ -1,6 +1,7 @@
 import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup } from "./lib/hashtables";
 import * as PromptSync from "prompt-sync";
+import {questioneer, getRandomArbitrary, units } from './lib/utilities';
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
@@ -8,12 +9,13 @@ export type Recipe = {
     name: string,
     id: number,
     ingredients: Ingredients,
-    measurements: Measurements,
+    measurements: Measurements, //Array<Pair<Number, String>>
     servings: number,
     tags: Array<string>,
-    instructions: string
+    instructions: string,
+    unit: "metric" | "imperial"
 } 
-export type Measurements = Array<Pair<Number, String>>
+export type Measurements = Array<Pair<number, String>>
 export type Ingredients = Array<string> 
 
 
@@ -79,7 +81,7 @@ export function viewRecipe(id, hashedTable) {
     }
 }
 
-export function searchRecipe(keysToHashed, hashedTable): Recipe | undefined |  boolean {  //Massa felhantering behövs här (ska inte kunna returna undefined)
+export function searchRecipe(keysToHashed, hashedTable): Recipe |  boolean {  //Massa felhantering behövs här (ska inte kunna returna undefined)
     const userSearch = prompt("Search >")                              //Snarare typ en flag som säger false eller ngt
     const searchResult: Array<string> = []
     keysToHashed.forEach(element => {
@@ -88,13 +90,18 @@ export function searchRecipe(keysToHashed, hashedTable): Recipe | undefined |  b
             searchResult.push(name)
         }
     });
+    
+    let userChoice : boolean | Recipe = true
     if (searchResult === undefined) {
-        return false
+        userChoice = false
     }
    const chosenRecipeName = userSearch[questioneer(searchResult)- 1]
+   
    for(let i = 0; i < keysToHashed; i++) {
     if(head(keysToHashed[i]) === chosenRecipeName) {
-        return ph_lookup(hashedTable, tail(keysToHashed[i]))
-        }
-     }
+        const recipeSearch : Recipe | undefined = ph_lookup(hashedTable, tail(keysToHashed[i]))
+        recipeSearch === undefined ? userChoice = false : userChoice = recipeSearch
+    }
+    }
+    return userChoice
 }

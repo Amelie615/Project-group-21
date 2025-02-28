@@ -1,26 +1,11 @@
 import * as PromptSync from "prompt-sync";
 import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup } from "./lib/hashtables";
+import {viewRecipe, createRecipe, emptyRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "./recipe.ts";
+import {questioneer, getRandomArbitrary, units } from "./lib/utilities.ts";
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
-type Measurements = Array<Pair<Number, String>>
-type Ingredients = Array<string> 
-type Recipe = {
-    name: string,
-    id: number,
-    ingredients: Ingredients,
-    measurements: Measurements,
-    servings: number,
-    tags: Array<string>,
-    instructions: string
-} 
-
-const units = ["ml", "l", "g", "dl"] // FIXA SYSTEM
-
-function getRandomArbitrary(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
 
 function cookbook(tag, hashedTable, keysToHashed) {
     while (true) {
@@ -35,24 +20,80 @@ function cookbook(tag, hashedTable, keysToHashed) {
             keysToHashed.forEach(element => {
                 names.push(head(element))
             });
-            
-            //viewRecipe(tail(keysToHashed[questioneer(names)-1]), hashedTable) 
             viewRecipe(searchRecipe(keysToHashed, hashedTable), hashedTable)
             break;
         case(3):
-            return false
+            const searchedRecipe = searchRecipe(keysToHashed, hashedTable)
+            if (typeof searchedRecipe === "boolean") {//=== false || true) {
+                console.log("No recipe was found.")
+            } else {
+                editRecipe(searchedRecipe, hashedTable)
+            }
+            break;
         default:
             console.log("Invalid input")
+        }
     }
-}}
-
-function questioneer(vallista: Array<string>) : number {
-    for(let i = 0; i < vallista.length; i++) {
-        console.log(i + 1 + " " + vallista[i]);
-    }
-    let q: string = prompt(">  ")
-    return(Number(q));
 }
+
+//Axels lekland-------------------------------------------------
+
+function editRecipe(recipe: Recipe, table) {  
+    viewRecipe(recipe, table)
+    console.log("What do you want to do?")
+    switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name"])) {
+        case(1):
+            ingredientAndMesasurmentsEditSubmenu(recipe, table)
+        case(2):
+            console.log("current instructions: " + recipe.instructions)  
+            recipe.instructions = prompt("")
+            break
+        case(2):
+            console.log("current name: " + recipe.name)
+            recipe.name = prompt("")
+            break
+        default:
+            console.log("Invalid input")
+
+    }
+}
+
+function ingredientAndMesasurmentsEditSubmenu(recipe, table) {  // working name
+    console.log("What do you want to do?")
+    switch(questioneer(["Change serving amount", "Change units", "Edit ingredients"])) {
+        case(1):
+            changeServing(recipe, table)
+            break
+        case(2):
+            changeUnits(recipe, table)
+            break
+        case(3):
+            editIngredients(recipe, table)
+            break
+    }
+}
+
+function changeServing(recipe: Recipe, table) {                             // Fixa errors med wacky inputs
+    console.log("Recipe currently serves " + recipe.servings + " people")
+    let newServings: number = parseInt(prompt("New serving size: "), 10)
+    for(let i = 0; i < recipe.measurements.length; i ++) {
+        let currentIngredient: number = head(recipe.measurements[i])
+        recipe.measurements[i] = pair(currentIngredient/recipe.servings * newServings, tail(recipe.measurements[i]))
+    }
+    console.log("The new recipe: \n")
+    viewRecipe(recipe, table)
+}
+
+function changeUnits(recipe, table) {
+        
+}
+
+function editIngredients(recipe, table) {
+    
+}
+//Axels lekland-------------------------------------------------
+
+
 
 function main() {
     const hashedTable = ph_empty(13, hash_id)
@@ -71,7 +112,7 @@ function main() {
         }
         
     }
-    }
+}
  
 
 const firstRecipe = {name: "Goat tomato soup", id: 1001, ingredients: ["tomato", "heavy cream"], amount: [pair(200, "g"), pair(4, "L")], servings: 4, tags: ["good", "soup"], description: "Here is our mästerverk."}
