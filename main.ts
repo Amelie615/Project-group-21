@@ -1,8 +1,8 @@
 import * as PromptSync from "prompt-sync";
 import {pair, head, tail, Pair,} from './lib/list';
-import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup } from "./lib/hashtables";
-import {viewRecipe, createRecipe, emptyRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "./recipe";
-import {questioneer, getRandomArbitrary, units } from "./lib/utilities";
+import { hash_id, ph_empty} from "./lib/hashtables";
+import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "../Project-group-21/lib/recipe";
+import {questioneer, changeUnits } from "./lib/utilities";
 import {convert, Unit} from 'convert';
 
 // const { convert } = require("convert")
@@ -25,24 +25,6 @@ function cookbook(tag, hashedTable, keysToHashed) {
             } else {
                 viewRecipe(search)
             }
-        
-        // const names : Array<string> = []    //ger en lista av alla recipes som matchar sökningen
-            // keysToHashed.forEach(element => {
-            //     names.push(head(element))
-            // });
-
-
-            
-            
-            // const searchedRecipe = searchRecipe(keysToHashed, hashedTable)
-            // if (typeof searchedRecipe === "boolean") {
-            //     console.log("No recipe was found.")
-            // } else { viewRecipe(searchedRecipe) }
-            
-            
-            
-            // searchedRecipe = searchRecipe(keysToHashed, hashedTable)
-            // viewRecipe(searchedRecipe, hashedTable)
             break;
         case(3):
             const searchedRecipe = searchRecipe(keysToHashed, hashedTable)
@@ -68,7 +50,7 @@ function editRecipe(recipe: Recipe, table) {
     switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name"])) {
         case(1):
             ingredientAndMesasurmentsEditSubmenu(recipe, table)
-            breaak;
+            break;
         case(2):
             console.log("current instructions: " + recipe.instructions)  
             recipe.instructions = prompt("")
@@ -87,13 +69,13 @@ function ingredientAndMesasurmentsEditSubmenu(recipe, table) {  // working name
     console.log("What do you want to do?")
     switch(questioneer(["Change serving amount", "Change units", "Edit ingredients"])) {
         case(1):
-            changeServing(recipe, table)
+            changeServing(recipe, table) //funkar
             break
         case(2):
-            changeUnits(recipe, table)
+            changeUnits(recipe, table) //funkar
             break
         case(3):
-            editIngredients(recipe, table)
+            editIngredients(recipe, table) //Submenu
             break
         default:
             console.log("Invalid input")
@@ -113,21 +95,7 @@ function changeServing(recipe: Recipe, table) {                             // F
     viewRecipe(recipe)
 }
 
-function changeUnits(recipe : Recipe, table) {
-        if (recipe.unit === "metric") {
-            for (let i = 0; i < recipe.measurements.length; i++) {
-                const conversion = convert(head(recipe.measurements[i]), tail(recipe.measurements[i])).to("best", "imperial")
-                recipe.measurements[i] = pair(conversion.quantity, conversion.unit)
-                console.log(recipe.measurements[i])
-            }
-        } else if (recipe.unit === "imperial") {
-            for (let i = 0; i < recipe.measurements.length; i++) {
-                const conversion = convert(head(recipe.measurements[i]), tail(recipe.measurements[i])).to("best", "metric")
-                recipe.measurements[i] = pair(Math.floor(conversion.quantity), conversion.unit)
-                console.log(recipe.measurements[i])
-            }
-        }
-}
+
 
 function editIngredients(recipe, table) {
     switch(questioneer(["add ingredient","remove ingredient", "edit ingredient"])) {
@@ -136,18 +104,22 @@ function editIngredients(recipe, table) {
         case(2):
             let indexToRemove: number = recipe.ingredients.find(prompt("What ingredient do you want to remove?\n> "))
             if(indexToRemove === 1) {
+                //removeFromArray()
             } else { console.log("Ingredient doesn't exist") }
         case(3):
             break
+        default:
+            console.log("Invalid input")
     }
 }
+
 //Axels lekland-------------------------------------------------
 
 
 
 function main() {
     const hashedTable = ph_empty(13, hash_id)
-    let keysToHashed : Array<Pair<string, Number>>= [] //pair(name, id)
+    let keysToHashed : Array<Pair<string, Number>> = [] //pair(name, id)
     while (true) {   
         const test = questioneer(["Open", "Quit"])
         switch(test) {

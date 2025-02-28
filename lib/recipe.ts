@@ -1,7 +1,7 @@
-import {pair, head, tail, Pair,} from './lib/list';
-import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup, ProbingHashtable } from "./lib/hashtables";
+import {pair, head, tail, Pair,} from './list';
+import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup, ProbingHashtable } from "./hashtables";
 import * as PromptSync from "prompt-sync";
-import {questioneer, getRandomArbitrary, units } from './lib/utilities';
+import {questioneer, getRandomArbitrary, units } from './utilities';
 import {convert, Unit} from 'convert';
 
 // const { convert } = require("convert")
