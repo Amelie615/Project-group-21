@@ -2,7 +2,9 @@ import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup, ProbingHashtable } from "./lib/hashtables";
 import * as PromptSync from "prompt-sync";
 import {questioneer, getRandomArbitrary, units } from './lib/utilities';
+import {convert, Unit} from 'convert';
 
+// const { convert } = require("convert")
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 export type Recipe = {
@@ -13,9 +15,9 @@ export type Recipe = {
     servings: number,
     tags: Array<string>,
     instructions: string,
-    //unit: "metric" | "imperial"
+    unit: "metric" | "imperial"
 } 
-export type Measurements = Array<Pair<number, String>>
+export type Measurements = Array<Pair<number, Unit>>
 export type Ingredients = Array<string> 
 
 
@@ -29,6 +31,7 @@ export function emptyRecipe() {
         instructions: prompt("instructions: > "),
         ingredients: [],
         measurements: [],
+        unit: prompt("metric/imperial? > ")
     }
     return empty_recipe
 }
@@ -42,8 +45,8 @@ export function createRecipe(hashedTable, keysToHashed) { // JÄTTEFUL FIXA SNÄ
         newRecipe.ingredients.push(addedIngredient);
         const ourString = "Enter amount of ".concat(addedIngredient, "> ")
         const inputMeasurements = prompt(ourString)
-        const integersFromMeasurements = inputMeasurements.match(/(\d+)/)[1] //asså det här är ju bara inte rätt men inte fel, lös det
-        let lettersFromMeasurements: string = ""
+        const integersFromMeasurements : number = inputMeasurements.match(/(\d+)/)[1] //asså det här är ju bara inte rätt men inte fel, lös det
+        let lettersFromMeasurements: Unit = "km"
         for (let i = 0; i < units.length; i++) {
             if (inputMeasurements.search(units[i]) === -1) {
                 continue
@@ -54,7 +57,13 @@ export function createRecipe(hashedTable, keysToHashed) { // JÄTTEFUL FIXA SNÄ
         newRecipe.measurements.push(pair(integersFromMeasurements, lettersFromMeasurements))
            
         done = prompt("Add another ingredient? true/ false ") === "true" ? true : false;
-    } console.log(newRecipe.measurements)
+    } 
+    for (let i = 0; i < newRecipe.measurements.length; i++) {
+        const conversion = convert(head(newRecipe.measurements[i]), tail(newRecipe.measurements[i])).to("best", newRecipe.unit)
+        newRecipe.measurements[i] = pair(conversion.quantity, conversion.unit)
+        console.log(newRecipe.measurements[i])
+    }
+    console.log(newRecipe.measurements)
     console.log(newRecipe)
     keysToHashed.push(pair(newRecipe.name, newRecipe.id))       //Check så att duplicate of id inte finns
     ph_insert(hashedTable, newRecipe.id, newRecipe)

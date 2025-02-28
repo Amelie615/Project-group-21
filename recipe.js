@@ -8,6 +8,8 @@ var list_1 = require("./lib/list");
 var hashtables_1 = require("./lib/hashtables");
 var PromptSync = require("prompt-sync");
 var utilities_1 = require("./lib/utilities");
+var convert_1 = require("convert");
+// const { convert } = require("convert")
 var prompt = PromptSync({ sigint: true });
 function emptyRecipe() {
     var empty_recipe = {
@@ -18,6 +20,7 @@ function emptyRecipe() {
         instructions: prompt("instructions: > "),
         ingredients: [],
         measurements: [],
+        unit: prompt("metric/imperial? > ")
     };
     return empty_recipe;
 }
@@ -30,7 +33,7 @@ function createRecipe(hashedTable, keysToHashed) {
         var ourString = "Enter amount of ".concat(addedIngredient, "> ");
         var inputMeasurements = prompt(ourString);
         var integersFromMeasurements = inputMeasurements.match(/(\d+)/)[1]; //asså det här är ju bara inte rätt men inte fel, lös det
-        var lettersFromMeasurements = "";
+        var lettersFromMeasurements = "km";
         for (var i = 0; i < utilities_1.units.length; i++) {
             if (inputMeasurements.search(utilities_1.units[i]) === -1) {
                 continue;
@@ -41,6 +44,11 @@ function createRecipe(hashedTable, keysToHashed) {
         }
         newRecipe.measurements.push((0, list_1.pair)(integersFromMeasurements, lettersFromMeasurements));
         done = prompt("Add another ingredient? true/ false ") === "true" ? true : false;
+    }
+    for (var i = 0; i < newRecipe.measurements.length; i++) {
+        var conversion = (0, convert_1.convert)((0, list_1.head)(newRecipe.measurements[i]), (0, list_1.tail)(newRecipe.measurements[i])).to("best", newRecipe.unit);
+        newRecipe.measurements[i] = (0, list_1.pair)(conversion.quantity, conversion.unit);
+        console.log(newRecipe.measurements[i]);
     }
     console.log(newRecipe.measurements);
     console.log(newRecipe);

@@ -3,6 +3,9 @@ import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup } from "./lib/hashtables";
 import {viewRecipe, createRecipe, emptyRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "./recipe";
 import {questioneer, getRandomArbitrary, units } from "./lib/utilities";
+import {convert, Unit} from 'convert';
+
+// const { convert } = require("convert")
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
@@ -65,14 +68,15 @@ function editRecipe(recipe: Recipe, table) {
     switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name"])) {
         case(1):
             ingredientAndMesasurmentsEditSubmenu(recipe, table)
+            breaak;
         case(2):
             console.log("current instructions: " + recipe.instructions)  
             recipe.instructions = prompt("")
-            break
+            break;
         case(2):
             console.log("current name: " + recipe.name)
             recipe.name = prompt("")
-            break
+            break;
         default:
             console.log("Invalid input")
 
@@ -91,6 +95,9 @@ function ingredientAndMesasurmentsEditSubmenu(recipe, table) {  // working name
         case(3):
             editIngredients(recipe, table)
             break
+        default:
+            console.log("Invalid input")
+            break
     }
 }
 
@@ -106,12 +113,33 @@ function changeServing(recipe: Recipe, table) {                             // F
     viewRecipe(recipe)
 }
 
-function changeUnits(recipe, table) {
-        
+function changeUnits(recipe : Recipe, table) {
+        if (recipe.unit === "metric") {
+            for (let i = 0; i < recipe.measurements.length; i++) {
+                const conversion = convert(head(recipe.measurements[i]), tail(recipe.measurements[i])).to("best", "imperial")
+                recipe.measurements[i] = pair(conversion.quantity, conversion.unit)
+                console.log(recipe.measurements[i])
+            }
+        } else if (recipe.unit === "imperial") {
+            for (let i = 0; i < recipe.measurements.length; i++) {
+                const conversion = convert(head(recipe.measurements[i]), tail(recipe.measurements[i])).to("best", "metric")
+                recipe.measurements[i] = pair(Math.floor(conversion.quantity), conversion.unit)
+                console.log(recipe.measurements[i])
+            }
+        }
 }
 
 function editIngredients(recipe, table) {
-    
+    switch(questioneer(["add ingredient","remove ingredient", "edit ingredient"])) {
+        case(1):
+            break // Släng in add ingredient från creatRecipe, som func eller inte.
+        case(2):
+            let indexToRemove: number = recipe.ingredients.find(prompt("What ingredient do you want to remove?\n> "))
+            if(indexToRemove === 1) {
+            } else { console.log("Ingredient doesn't exist") }
+        case(3):
+            break
+    }
 }
 //Axels lekland-------------------------------------------------
 
@@ -135,7 +163,7 @@ function main() {
         
     }
 }
- 
+
 
 const firstRecipe = {name: "Goat tomato soup", id: 1001, ingredients: ["tomato", "heavy cream"], amount: [pair(200, "g"), pair(4, "L")], servings: 4, tags: ["good", "soup"], description: "Here is our mästerverk."}
 

@@ -5,6 +5,8 @@ var list_1 = require("./lib/list");
 var hashtables_1 = require("./lib/hashtables");
 var recipe_1 = require("./recipe");
 var utilities_1 = require("./lib/utilities");
+var convert_1 = require("convert");
+// const { convert } = require("convert")
 var prompt = PromptSync({ sigint: true });
 function cookbook(tag, hashedTable, keysToHashed) {
     while (true) {
@@ -84,6 +86,9 @@ function ingredientAndMesasurmentsEditSubmenu(recipe, table) {
         case (3):
             editIngredients(recipe, table);
             break;
+        default:
+            console.log("Invalid input");
+            break;
     }
 }
 function changeServing(recipe, table) {
@@ -93,12 +98,40 @@ function changeServing(recipe, table) {
         var currentIngredient = (0, list_1.head)(recipe.measurements[i]);
         recipe.measurements[i] = (0, list_1.pair)(currentIngredient / recipe.servings * newServings, (0, list_1.tail)(recipe.measurements[i]));
     }
+    recipe.servings = newServings;
     console.log("The new recipe: \n");
     (0, recipe_1.viewRecipe)(recipe);
 }
 function changeUnits(recipe, table) {
+    if (recipe.unit === "metric") {
+        for (var i = 0; i < recipe.measurements.length; i++) {
+            var conversion = (0, convert_1.convert)((0, list_1.head)(recipe.measurements[i]), (0, list_1.tail)(recipe.measurements[i])).to("best", "imperial");
+            recipe.measurements[i] = (0, list_1.pair)(conversion.quantity, conversion.unit);
+            console.log(recipe.measurements[i]);
+        }
+    }
+    else if (recipe.unit === "imperial") {
+        for (var i = 0; i < recipe.measurements.length; i++) {
+            var conversion = (0, convert_1.convert)((0, list_1.head)(recipe.measurements[i]), (0, list_1.tail)(recipe.measurements[i])).to("best", "metric");
+            recipe.measurements[i] = (0, list_1.pair)(conversion.quantity, conversion.unit);
+            console.log(recipe.measurements[i]);
+        }
+    }
 }
 function editIngredients(recipe, table) {
+    switch ((0, utilities_1.questioneer)(["add ingredient", "remove ingredient", "edit ingredient"])) {
+        case (1):
+            break; // Släng in add ingredient från creatRecipe, som func eller inte.
+        case (2):
+            var indexToRemove = recipe.ingredients.find(prompt("What ingredient do you want to remove?\n> "));
+            if (indexToRemove === 1) {
+            }
+            else {
+                console.log("Ingredient doesn't exist");
+            }
+        case (3):
+            break;
+    }
 }
 //Axels lekland-------------------------------------------------
 function main() {
