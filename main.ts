@@ -1,26 +1,45 @@
 import * as PromptSync from "prompt-sync";
 import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup } from "./lib/hashtables";
-import {viewRecipe, createRecipe, emptyRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "./recipe.ts";
-import {questioneer, getRandomArbitrary, units } from "./lib/utilities.ts";
+import {viewRecipe, createRecipe, emptyRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "./recipe";
+import {questioneer, getRandomArbitrary, units } from "./lib/utilities";
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 
 function cookbook(tag, hashedTable, keysToHashed) {
     while (true) {
-        const test = questioneer(["Create recipe", "Search recipe", "Close cookbook"])
+        const test = questioneer(["Create recipe", "Search recipe", "Edit Recipe", "Close cookbook"])
     switch(test) {
         case(1):
             createRecipe(hashedTable, keysToHashed)
             break;
         case(2):
+            const search = searchRecipe(keysToHashed, hashedTable)
+            if (typeof search === "boolean") {
+                if (search === true) { console.log("search blev true")} 
+                else {console.log("Search blev false")}
+            } else {
+                viewRecipe(search)
+            }
+        
+        // const names : Array<string> = []    //ger en lista av alla recipes som matchar sökningen
+            // keysToHashed.forEach(element => {
+            //     names.push(head(element))
+            // });
 
-            const names : Array<string> = []
-            keysToHashed.forEach(element => {
-                names.push(head(element))
-            });
-            viewRecipe(searchRecipe(keysToHashed, hashedTable), hashedTable)
+
+            
+            
+            // const searchedRecipe = searchRecipe(keysToHashed, hashedTable)
+            // if (typeof searchedRecipe === "boolean") {
+            //     console.log("No recipe was found.")
+            // } else { viewRecipe(searchedRecipe) }
+            
+            
+            
+            // searchedRecipe = searchRecipe(keysToHashed, hashedTable)
+            // viewRecipe(searchedRecipe, hashedTable)
             break;
         case(3):
             const searchedRecipe = searchRecipe(keysToHashed, hashedTable)
@@ -30,6 +49,8 @@ function cookbook(tag, hashedTable, keysToHashed) {
                 editRecipe(searchedRecipe, hashedTable)
             }
             break;
+        case(4): 
+            return false
         default:
             console.log("Invalid input")
         }
@@ -39,7 +60,7 @@ function cookbook(tag, hashedTable, keysToHashed) {
 //Axels lekland-------------------------------------------------
 
 function editRecipe(recipe: Recipe, table) {  
-    viewRecipe(recipe, table)
+    viewRecipe(recipe)
     console.log("What do you want to do?")
     switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name"])) {
         case(1):
@@ -80,8 +101,9 @@ function changeServing(recipe: Recipe, table) {                             // F
         let currentIngredient: number = head(recipe.measurements[i])
         recipe.measurements[i] = pair(currentIngredient/recipe.servings * newServings, tail(recipe.measurements[i]))
     }
+    recipe.servings = newServings
     console.log("The new recipe: \n")
-    viewRecipe(recipe, table)
+    viewRecipe(recipe)
 }
 
 function changeUnits(recipe, table) {

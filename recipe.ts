@@ -1,5 +1,5 @@
 import {pair, head, tail, Pair,} from './lib/list';
-import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup } from "./lib/hashtables";
+import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup, ProbingHashtable } from "./lib/hashtables";
 import * as PromptSync from "prompt-sync";
 import {questioneer, getRandomArbitrary, units } from './lib/utilities';
 
@@ -13,7 +13,7 @@ export type Recipe = {
     servings: number,
     tags: Array<string>,
     instructions: string,
-    unit: "metric" | "imperial"
+    //unit: "metric" | "imperial"
 } 
 export type Measurements = Array<Pair<number, String>>
 export type Ingredients = Array<string> 
@@ -62,8 +62,9 @@ export function createRecipe(hashedTable, keysToHashed) { // JÄTTEFUL FIXA SNÄ
 }
 
 
-export function viewRecipe(id, hashedTable) {
-    const recipe : Recipe | undefined = ph_lookup(hashedTable, id)
+export function viewRecipe(recipe : Recipe) {
+   // const recipe : Recipe | undefined = ph_lookup(hashedTable, id)
+    console.log(recipe)
     if (recipe === undefined) {console.log("error")}
     else {
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -81,10 +82,10 @@ export function viewRecipe(id, hashedTable) {
     }
 }
 
-export function searchRecipe(keysToHashed, hashedTable): Recipe |  boolean {  //Massa felhantering behövs här (ska inte kunna returna undefined)
-    const userSearch = prompt("Search >")                              //Snarare typ en flag som säger false eller ngt
+export function searchRecipe(keysToHashed, hashedTable): Recipe |  boolean {  
+    const userSearch = prompt("Search >")                              
     const searchResult: Array<string> = []
-    keysToHashed.forEach(element => {
+    keysToHashed.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
         const name : string = head(element)
         if (name.search(userSearch) !== -1 ) {
             searchResult.push(name)
@@ -95,13 +96,16 @@ export function searchRecipe(keysToHashed, hashedTable): Recipe |  boolean {  //
     if (searchResult === undefined) {
         userChoice = false
     }
-   const chosenRecipeName = userSearch[questioneer(searchResult)- 1]
+    const chosenRecipeName = searchResult[questioneer(searchResult)- 1]
    
-   for(let i = 0; i < keysToHashed; i++) {
-    if(head(keysToHashed[i]) === chosenRecipeName) {
-        const recipeSearch : Recipe | undefined = ph_lookup(hashedTable, tail(keysToHashed[i]))
-        recipeSearch === undefined ? userChoice = false : userChoice = recipeSearch
-    }
+    for(let i = 0; i < keysToHashed.length; i++) {
+        console.log("HEJ")
+        console.log(keysToHashed, chosenRecipeName)
+        if(head(keysToHashed[i]) === chosenRecipeName) { //
+            const recipeSearch : Recipe | undefined = ph_lookup(hashedTable, tail(keysToHashed[i]))
+            recipeSearch === undefined ? userChoice = false : userChoice = recipeSearch
+            console.log("DEN KOMMER IN")
+        }
     }
     return userChoice
 }
