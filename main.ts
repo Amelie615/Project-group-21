@@ -2,18 +2,16 @@ import * as PromptSync from "prompt-sync";
 import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty} from "./lib/hashtables";
 import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "../Project-group-21/lib/recipe";
-import {questioneer, changeUnits, units} from "./lib/utilities";
+import {questionnaire, changeUnits, units} from "./lib/utilities";
 import {convert, Unit} from 'convert';
 import {changeServing, removeIngredient, changeIngredients, addIngredient} from "../Project-group-21/lib/ingredients"
-
-// const { convert } = require("convert")
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 
 function cookbook(tag, hashedTable, keysToHashed) {
     while (true) {
-        const test = questioneer(["Create recipe", "Search recipe", "Edit Recipe", "Close cookbook"])
+        const test = questionnaire(["Create recipe", "Search recipe", "Close cookbook"])
     switch(test) {
         case(1):
             createRecipe(hashedTable, keysToHashed)
@@ -21,21 +19,12 @@ function cookbook(tag, hashedTable, keysToHashed) {
         case(2):
             const search = searchRecipe(keysToHashed, hashedTable)
             if (typeof search === "boolean") {
-                if (search === true) { console.log("search blev true")} 
-                else {console.log("Search blev false")}
+                console.log("Recipe not found.")
             } else {
-                viewRecipe(search)
+                recipeHandelingMenu(search, hashedTable)
             }
             break;
-        case(3):
-            const searchedRecipe = searchRecipe(keysToHashed, hashedTable)
-            if (typeof searchedRecipe === "boolean") {//=== false || true) {
-                console.log("No recipe was found.")
-            } else {
-                editRecipe(searchedRecipe, hashedTable)
-            }
-            break;
-        case(4): 
+        case(3): 
             return false
         default:
             console.log("Invalid input")
@@ -43,13 +32,30 @@ function cookbook(tag, hashedTable, keysToHashed) {
     }
 }
 
-//Axels lekland-------------------------------------------------
+function recipeHandelingMenu(recipe: Recipe, table) {
+    while(true) {
+        console.log("What do you want to do?\n")
+        switch(questionnaire(["View recipe", "Edit recipe", "Return"])) {
+            case(1):
+                viewRecipe(recipe)
+                break
+            case(2):
+                ingredientAndMesasurmentsEditSubmenu(recipe, table)
+                break
+            case(3):
+                return false
+            default:
+                console.log("Invalid input")
+                break
+        }
+    }
+}
 
 function editRecipe(recipe: Recipe, table) {  
     viewRecipe(recipe)
-    console.log("What do you want to do?")
     while(true) {
-        switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name","go back"])) {
+    console.log("What do you want to do?\n")
+        switch(questionnaire(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
             case(1):
                 ingredientAndMesasurmentsEditSubmenu(recipe, table)
                 break;
@@ -70,9 +76,9 @@ function editRecipe(recipe: Recipe, table) {
 }
 
 function ingredientAndMesasurmentsEditSubmenu(recipe, table) {  // working name
-    console.log("What do you want to do?")
     while(true) {
-        switch(questioneer(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
+    console.log("What do you want to do?\n")
+        switch(questionnaire(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
             case(1):
                 changeServing(recipe, table) //funkar
                 break
@@ -94,7 +100,8 @@ function ingredientAndMesasurmentsEditSubmenu(recipe, table) {  // working name
 
 function editIngredients(recipe: Recipe, table) {
     while(true) {
-        switch(questioneer(["add ingredient","remove ingredient", "edit ingredient", "Return"])) {
+        console.log("What do you want to do?\n")
+        switch(questionnaire(["add ingredient","remove ingredient", "edit ingredient", "Return"])) {
             case(1):
                 addIngredient(recipe)
                 break
@@ -112,15 +119,12 @@ function editIngredients(recipe: Recipe, table) {
 }
 
 
-//Axels lekland-------------------------------------------------
-
-
 
 function main() {
     const hashedTable = ph_empty(13, hash_id)
     let keysToHashed : Array<Pair<string, Number>> = [] //pair(name, id)
     while (true) {   
-        const test = questioneer(["Open", "Quit"])
+        const test = questionnaire(["Open", "Quit"])
         switch(test) {
             case(1): 
                 cookbook("tag", hashedTable, keysToHashed) //Använder inte tagen just nu så bara placeholder
