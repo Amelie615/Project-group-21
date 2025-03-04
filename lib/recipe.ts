@@ -1,8 +1,8 @@
 import {pair, head, tail, Pair,} from './list';
 import { hash_id, ph_empty, HashFunction, ph_insert, ph_lookup, ProbingHashtable } from "./hashtables";
 import * as PromptSync from "prompt-sync";
-import {questioneer, getRandomArbitrary, units } from './utilities';
-import {convert, Unit} from 'convert';
+import {questioneer, getRandomArbitrary, units, changeUnits } from './utilities';
+import {convert, Unit, BestKind} from 'convert';
 
 // const { convert } = require("convert")
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
@@ -15,23 +15,23 @@ export type Recipe = {
     servings: number,
     tags: Array<string>,
     instructions: string,
-    unit: "metric" | "imperial"
+    unit: BestKind | undefined
 } 
-export type Measurements = Array<Pair<number, Unit>>
+export type Measurements = Array<Pair<number, Unit | string>>
 export type Ingredients = Array<string> 
 
 
 
 export function emptyRecipe() {
     const empty_recipe: Recipe = {
-        name: prompt("name: > "),
+        name: prompt("name: > ").toLowerCase(),
         id: getRandomArbitrary(1000, 9999),                      //make sure its unique
         servings: prompt("Estimated servings: > "),
         tags: [],
         instructions: prompt("instructions: > "),
         ingredients: [],
         measurements: [],
-        unit: prompt("metric/imperial? > ")
+        unit: "metric"
     }
     return empty_recipe
 }
@@ -41,28 +41,21 @@ export function createRecipe(hashedTable, keysToHashed) { // JÄTTEFUL FIXA SNÄ
 
     let done : Boolean = true;
     while (done === true) {
-        const addedIngredient : string = prompt("Name a ingredient > ");
+        const addedIngredient = prompt("Name a ingredient > ");
         newRecipe.ingredients.push(addedIngredient);
         const ourString = "Enter amount of ".concat(addedIngredient, "> ")
         const inputMeasurements = prompt(ourString)
-        const integersFromMeasurements : number = inputMeasurements.match(/(\d+)/)[1] //asså det här är ju bara inte rätt men inte fel, lös det
-        let lettersFromMeasurements: Unit = "km"
-        for (let i = 0; i < units.length; i++) {
-            if (inputMeasurements.search(units[i]) === -1) {
-                continue
-            } else {
-                lettersFromMeasurements = units[i]
-            }
-        }
+        const integersFromMeasurements : number = Math.floor(inputMeasurements.match(/(\d+)/)[1]) //asså det här är ju bara inte rätt men inte fel, lös det
+        
+        let lettersFromMeasurements: Unit = inputMeasurements.replace(/\d+|^\s+|\s+$/g,''); //ful default
+
         newRecipe.measurements.push(pair(integersFromMeasurements, lettersFromMeasurements))
-           
         done = prompt("Add another ingredient? true/ false ") === "true" ? true : false;
+        
     } 
-    for (let i = 0; i < newRecipe.measurements.length; i++) {
-        const conversion = convert(head(newRecipe.measurements[i]), tail(newRecipe.measurements[i])).to("best", newRecipe.unit)
-        newRecipe.measurements[i] = pair(conversion.quantity, conversion.unit)
-        console.log(newRecipe.measurements[i])
-    }
+    changeUnits(newRecipe, hashedTable, "")
+   
+
     console.log(newRecipe.measurements)
     console.log(newRecipe)
     keysToHashed.push(pair(newRecipe.name, newRecipe.id))       //Check så att duplicate of id inte finns
@@ -72,13 +65,14 @@ export function createRecipe(hashedTable, keysToHashed) { // JÄTTEFUL FIXA SNÄ
 
 
 export function viewRecipe(recipe : Recipe) {
-   // const recipe : Recipe | undefined = ph_lookup(hashedTable, id)
     console.log(recipe)
     if (recipe === undefined) {console.log("error")}
     else {
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
     console.log(recipe.name)
     console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    console.log("ingredients: \n")
+    console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
     for (let i = 0; i < recipe.ingredients.length; i++ ) {
         console.log(recipe.ingredients[i] + " " + head(recipe.measurements[i]) + tail(recipe.measurements[i]) + "\n")
     }
@@ -92,7 +86,7 @@ export function viewRecipe(recipe : Recipe) {
 }
 
 export function searchRecipe(keysToHashed, hashedTable): Recipe |  boolean {  
-    const userSearch = prompt("Search >")                              
+    const userSearch = prompt("Search >").toLowerCase()                              
     const searchResult: Array<string> = []
     keysToHashed.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
         const name : string = head(element)

@@ -2,8 +2,9 @@ import * as PromptSync from "prompt-sync";
 import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty} from "./lib/hashtables";
 import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "../Project-group-21/lib/recipe";
-import {questioneer, changeUnits } from "./lib/utilities";
+import {questioneer, changeUnits, units} from "./lib/utilities";
 import {convert, Unit} from 'convert';
+import {changeServing, removeIngredient, changeIngredients, addIngredient} from "../Project-group-21/lib/ingredients"
 
 // const { convert } = require("convert")
 
@@ -47,71 +48,69 @@ function cookbook(tag, hashedTable, keysToHashed) {
 function editRecipe(recipe: Recipe, table) {  
     viewRecipe(recipe)
     console.log("What do you want to do?")
-    switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name"])) {
-        case(1):
-            ingredientAndMesasurmentsEditSubmenu(recipe, table)
-            break;
-        case(2):
-            console.log("current instructions: " + recipe.instructions)  
-            recipe.instructions = prompt("")
-            break;
-        case(2):
-            console.log("current name: " + recipe.name)
-            recipe.name = prompt("")
-            break;
-        default:
-            console.log("Invalid input")
-
+    while(true) {
+        switch(questioneer(["Edit ingredients and measurements", "Edit instructions", "Edit name","go back"])) {
+            case(1):
+                ingredientAndMesasurmentsEditSubmenu(recipe, table)
+                break;
+            case(2):
+                console.log("current instructions: " + recipe.instructions)  
+                recipe.instructions = prompt("")
+                break;
+            case(3):
+                console.log("current name: " + recipe.name)
+                recipe.name = prompt("")
+                break;
+            case(4):
+                return false
+            default:
+                console.log("Invalid input")
+        }
     }
 }
 
 function ingredientAndMesasurmentsEditSubmenu(recipe, table) {  // working name
     console.log("What do you want to do?")
-    switch(questioneer(["Change serving amount", "Change units", "Edit ingredients"])) {
-        case(1):
-            changeServing(recipe, table) //funkar
-            break
-        case(2):
-            changeUnits(recipe, table) //funkar
-            break
-        case(3):
-            editIngredients(recipe, table) //Submenu
-            break
-        default:
-            console.log("Invalid input")
-            break
+    while(true) {
+        switch(questioneer(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
+            case(1):
+                changeServing(recipe, table) //funkar
+                break
+            case(2):
+                changeUnits(recipe, table, "switchUnit") //funkar
+                viewRecipe(recipe)
+                break
+            case(3):
+                editIngredients(recipe, table) //Submenu
+                break
+            case(4):
+                return false
+            default:
+                console.log("Invalid input")
+                break
+        }
     }
 }
 
-function changeServing(recipe: Recipe, table) {                             // Fixa errors med wacky inputs
-    console.log("Recipe currently serves " + recipe.servings + " people")
-    let newServings: number = parseInt(prompt("New serving size: "), 10)
-    for(let i = 0; i < recipe.measurements.length; i ++) {
-        let currentIngredient: number = head(recipe.measurements[i])
-        recipe.measurements[i] = pair(currentIngredient/recipe.servings * newServings, tail(recipe.measurements[i]))
-    }
-    recipe.servings = newServings
-    console.log("The new recipe: \n")
-    viewRecipe(recipe)
-}
-
-
-
-function editIngredients(recipe, table) {
-    switch(questioneer(["add ingredient","remove ingredient", "edit ingredient"])) {
-        case(1):
-            break // Släng in add ingredient från creatRecipe, som func eller inte.
-        case(2):
-            let indexToRemove: number = recipe.ingredients.find(prompt("What ingredient do you want to remove?\n> "))
-            if(indexToRemove === 1) {
-                //removeFromArray()
-            } else { console.log("Ingredient doesn't exist") }
-        case(3):
-            break
-        default:
-            console.log("Invalid input")
+function editIngredients(recipe: Recipe, table) {
+    while(true) {
+        switch(questioneer(["add ingredient","remove ingredient", "edit ingredient", "Return"])) {
+            case(1):
+                addIngredient(recipe)
+                break
+            case(2):
+                removeIngredient(recipe, prompt("What ingredient do you want to remove? > "))
+                break
+            case(3):
+                changeIngredients(recipe, prompt("What ingredient do you want to change? > "))
+            case(4):
+                return false
+            default:
+                console.log("Invalid input")
+        }
     }
 }
+
 
 //Axels lekland-------------------------------------------------
 
