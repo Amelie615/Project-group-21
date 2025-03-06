@@ -9,17 +9,29 @@ const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 
 export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook): void {
-    recipe.ingredients.push(name);
-    const ourString: string = "Enter amount of " + name + " > "
-    const inputMeasurements = prompt(ourString).toLowerCase()
-    console.log("test2")
-    const integersFromMeasurements: number = Math.floor(inputMeasurements.match(/(\d+)/)[1]) 
-    console.log("test3")
-    const lettersFromMeasurements: string = inputMeasurements.replace(/\d+|^\s+|\s+$/g,''); 
-    console.log("test4")
-    recipe.measurements.push(pair(integersFromMeasurements, stringToUnit(lettersFromMeasurements)))
-    changeUnits(recipe, cookbook, "")
-    console.log("test5")
+    const inputMeasurements: string = prompt("Enter amount of " + name + " > ").toLowerCase()
+    if (inputMeasurements === "") {
+        console.log("invalid input")
+        makeIngredient(recipe, name, cookbook)
+        return
+    }
+    const integersFromMeasurements = inputMeasurements.match(/(\d+)/) 
+    if (integersFromMeasurements === null) {
+        console.log("invalid input")
+        makeIngredient(recipe, name, cookbook)
+        return
+    } else {
+        const validints: number = parseInt(integersFromMeasurements[1])
+        const lettersFromMeasurements: string = inputMeasurements.replace(/[\d\s]+/g,'');
+        if (lettersFromMeasurements === "") {
+            console.log("invalid input")
+            makeIngredient(recipe, name, cookbook)
+            return
+        }
+        recipe.ingredients.push(name);
+        recipe.measurements.push(pair(validints, stringToUnit(lettersFromMeasurements)))
+        changeUnits(recipe, cookbook, "")
+    }
 }
 
 function stringToUnit (unit: string): Unit | string {
@@ -48,7 +60,7 @@ export function changeServing(recipe: Recipe, table: Cookbook): void {
 
 export function removeIngredient(recipe: Recipe, ingredientSearch: string): void {
     let indexToRemove: number = recipe.ingredients.indexOf(ingredientSearch)
-    if(indexToRemove === 1) {
+    if(indexToRemove !== -1) {
         console.log("Removed " + recipe.ingredients[indexToRemove] + " from " + recipe.name + "\n")
         recipe.ingredients.splice(indexToRemove, 1)
         recipe.measurements.splice(indexToRemove, 1)
@@ -73,8 +85,7 @@ export function changeIngredients(recipe: Recipe, cookbook: Cookbook): void {
     while(done === true) {
         let ingredientSearch: string = prompt("What ingredient do you want to change? > ")
         let indexToChange: number = recipe.ingredients.indexOf(ingredientSearch)
-        console.log(indexToChange) //testmeme
-        if(indexToChange === 1) {
+        if(indexToChange !== -1) {
             console.log("Current ingredient: " + recipe.ingredients[indexToChange] + " " + recipe.measurements[indexToChange])
             recipe.ingredients.splice(indexToChange, 1)
             recipe.measurements.splice(indexToChange, 1)

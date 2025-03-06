@@ -16,15 +16,27 @@ const JSONtest = JSON.stringify(ph_lookup(testHashtable, keysToHashed[0][1]))
 // localStorage.setItem("italiensk" , test)
 // console.log("hejhopp klar")
 
-fs.appendFile('./Project-group-21/lib/italian.txt', JSONtest, (err: NodeJS.ErrnoException | null) => {
+fs.writeFile('italian.txt', JSONtest, (err: NodeJS.ErrnoException | null) => {
     if (err) throw err;
     console.log('Saved!');
   });
 
-fs.readFile('italian', 'utf8', (err, data) => {
-    if (err) {
-        console.error(err);
-        return;
-    }
-    console.log(data);
-});
+function findInformation() {
+    const possibleRecipe = fs.readFile('italian.txt', 'utf8', (err, data) => {
+                                if (err) {
+                                    console.error(err);
+                                    return;
+                                }
+                                return JSON.parse(data);
+                            });
+    console.log(possibleRecipe)
+}
+
+// fs.readFile('italian.txt', 'utf8', (err, data) => {
+//     if (err) {
+//         console.error(err);
+//         return;
+//     }
+//     console.log(data);
+
+// });

@@ -47,9 +47,9 @@ export function createRecipe(hashedTable: Cookbook, keysToHashed: Array<Pair<str
         makeIngredient(newRecipe, prompt("Name an ingredient > "), hashedTable);
         done = prompt("Add another ingredient? y/n ").toLowerCase() === "y" ? true : false;
     } 
-    changeUnits(newRecipe, hashedTable, "")
+    // changeUnits(newRecipe, hashedTable, "")
     console.log(newRecipe)
-    keysToHashed.push(pair(newRecipe.name, newRecipe.id))       //Check så att duplicate of id inte finns
+    keysToHashed.push(pair(newRecipe.name, newRecipe.id))
     ph_insert(hashedTable, newRecipe.id, newRecipe)
 }
 
