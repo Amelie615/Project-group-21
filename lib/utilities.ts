@@ -1,7 +1,9 @@
 import * as PromptSync from "prompt-sync";
 import {convert, Unit, BestKind} from 'convert';
 import {Recipe} from "../lib/recipe"
-import {head, tail, pair} from '../lib/list'
+import {head, tail, pair, Pair} from '../lib/list'
+import { ProbingHashtable } from "./hashtables";
+import { Cookbook } from "../main";
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "ounces", "cup", "tsp", "tbsp", "teaspoon", "tablespoon"] // FIXA SYSTEM
@@ -19,19 +21,22 @@ export function questionnaire(vallista: Array<string>) : number {
     return(Number(q));
 }
 
-export function getRandomArbitrary(min : number, max : number, keys : Array<number>) {
-    let id = Math.floor(Math.random() * (max - min) + min);
-    if (keys.indexOf(id) !== -1) {
-      id = getRandomArbitrary(min, max, keys)
+export function getRandomArbitrary(min : number, max : number, keys : Array<Pair<string, number>>): number {
+    let id: number = Math.floor(Math.random() * (max - min) + min);
+    for (let i = 0; i < keys.length; i++) {
+        if (tail(keys[i]) === id) {
+            id = getRandomArbitrary(min, max, keys)
+        }
     }
     return id
 }
 
-export function changeUnits(recipe : Recipe, table, flag) { 
+export function changeUnits(recipe : Recipe, table: Cookbook, flag: string): void { 
     let currentUnit: Array<BestKind | undefined> = ["metric", "imperial"]
-    let indexunit = currentUnit.indexOf(recipe.unit)
+    let indexunit: number = recipe.unit === "metric"? 0: 1
     if (flag === "switchUnit") {
-        indexunit = (indexunit + 1)%2
+        // indexunit = (indexunit + 1) % 2
+        indexunit = indexunit === 1? 0: 1
     } 
     for (let i = 0; i < recipe.measurements.length; i++) { //För varje measurement
         if (unitstring.indexOf(tail(recipe.measurements[i])) !== -1) {

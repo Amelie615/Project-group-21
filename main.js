@@ -7,10 +7,9 @@ var recipe_1 = require("../Project-group-21/lib/recipe");
 var utilities_1 = require("./lib/utilities");
 var ingredients_1 = require("../Project-group-21/lib/ingredients");
 var prompt = PromptSync({ sigint: true });
-function cookbook(tag, hashedTable, keysToHashed) {
+function cookbook(hashedTable, keysToHashed) {
     while (true) {
-        var test = (0, utilities_1.questionnaire)(["Create recipe", "Search recipe", "Edit Recipe", "Close cookbook"]);
-        switch (test) {
+        switch ((0, utilities_1.questionnaire)(["Create recipe", "Search recipe", "Close cookbook"])) {
             case (1):
                 (0, recipe_1.createRecipe)(hashedTable, keysToHashed);
                 break;
@@ -23,7 +22,7 @@ function cookbook(tag, hashedTable, keysToHashed) {
                     recipeHandelingMenu(search, hashedTable);
                 }
                 break;
-            case (4):
+            case (3):
                 return false;
             default:
                 console.log("Invalid input");
@@ -42,6 +41,7 @@ function recipeHandelingMenu(recipe, table) {
                 break;
             case (3):
                 return false;
+                break;
             default:
                 console.log("Invalid input");
                 break;
@@ -66,6 +66,7 @@ function editRecipe(recipe, table) {
                 break;
             case (4):
                 return false;
+                break;
             default:
                 console.log("Invalid input");
         }
@@ -79,7 +80,7 @@ function ingredientAndMesasurmentsEditSubmenu(recipe, table) {
                 (0, ingredients_1.changeServing)(recipe, table); //funkar
                 break;
             case (2):
-                (0, utilities_1.changeUnits)(recipe, table, "switchUnit"); //funkar
+                (0, utilities_1.changeUnits)(recipe, table, "switchUnit"); //funkar inte
                 (0, recipe_1.viewRecipe)(recipe);
                 break;
             case (3):
@@ -87,6 +88,7 @@ function ingredientAndMesasurmentsEditSubmenu(recipe, table) {
                 break;
             case (4):
                 return false;
+                break;
             default:
                 console.log("Invalid input");
                 break;
@@ -98,15 +100,17 @@ function editIngredients(recipe, table) {
         console.log("What do you want to do?\n");
         switch ((0, utilities_1.questionnaire)(["add ingredient", "remove ingredient", "edit ingredient", "Return"])) {
             case (1):
-                (0, ingredients_1.addIngredient)(recipe);
+                (0, ingredients_1.addIngredient)(recipe, table);
                 break;
             case (2):
                 (0, ingredients_1.removeIngredient)(recipe, prompt("What ingredient do you want to remove? > "));
                 break;
             case (3):
-                (0, ingredients_1.changeIngredients)(recipe, prompt("What ingredient do you want to change? > "));
+                (0, ingredients_1.changeIngredients)(recipe, table);
+                break;
             case (4):
                 return false;
+                break;
             default:
                 console.log("Invalid input");
         }
@@ -119,10 +123,11 @@ function main() {
         var test = (0, utilities_1.questionnaire)(["Open", "Quit"]);
         switch (test) {
             case (1):
-                cookbook("tag", hashedTable, keysToHashed); //Använder inte tagen just nu så bara placeholder
+                cookbook(hashedTable, keysToHashed); //Använder inte tagen just nu så bara placeholder
                 break;
             case (2):
                 return false;
+                break;
             default: console.log("default");
         }
     }
