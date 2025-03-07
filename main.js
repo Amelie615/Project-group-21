@@ -42,7 +42,8 @@ function cookbook(book, keys) {
  * @param {Cookbook} cookbook the cookbook hashtable
  */
 function recipeMenu(recipe, cookbook) {
-    while (true) {
+    var done = true;
+    while (done) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["View recipe", "Edit recipe", "Return"])) {
@@ -50,10 +51,10 @@ function recipeMenu(recipe, cookbook) {
                 (0, recipe_1.viewRecipe)(recipe);
                 break;
             case (2):
-                ingredientsMenu(recipe, cookbook);
+                editRecipe(recipe, cookbook);
                 break;
             case (3):
-                return false;
+                done = false;
             default:
                 console.log("Invalid input");
                 break;
@@ -67,7 +68,8 @@ function recipeMenu(recipe, cookbook) {
  */
 function editRecipe(recipe, cookbook) {
     (0, recipe_1.viewRecipe)(recipe);
-    while (true) {
+    var done = true;
+    while (done) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
@@ -76,14 +78,14 @@ function editRecipe(recipe, cookbook) {
                 break;
             case (2):
                 console.log("Current instructions: " + recipe.instructions);
-                recipe.instructions = (0, utilities_1.validAnswer)("New Instructions: > ", "");
+                recipe.instructions = (0, utilities_1.validAnswer)("New Instructions: > ", "", []);
                 break;
             case (3):
                 console.log("Current name: " + recipe.name);
-                recipe.name = (0, utilities_1.validAnswer)("New name: > ", "");
+                recipe.name = (0, utilities_1.validAnswer)("New name: > ", "", []);
                 break;
             case (4):
-                return false;
+                done = false;
             default:
                 console.log("Invalid input");
         }
@@ -128,14 +130,19 @@ function editIngredients(recipe, cookbook) {
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["add ingredient", "remove ingredient", "edit ingredient", "Return"])) {
             case (1):
+                console.log("current ingredients:");
+                (0, ingredients_1.viewIngredients)(recipe);
+                (0, utilities_1.line)();
                 (0, ingredients_1.addIngredient)(recipe, cookbook);
                 break;
             case (2):
-                // printa ut ingredients
-                (0, ingredients_1.removeIngredient)(recipe, (0, utilities_1.validAnswer)("What ingredient do you want to remove? > ", ""));
+                console.log("current ingredients:");
+                (0, ingredients_1.viewIngredients)(recipe);
+                (0, ingredients_1.removeIngredient)(recipe, (0, utilities_1.validAnswer)("What ingredient do you want to remove? > ", "", []));
                 break;
             case (3):
-                // printa ut ingredients
+                console.log("current ingredients:");
+                (0, ingredients_1.viewIngredients)(recipe);
                 (0, ingredients_1.changeIngredients)(recipe, cookbook);
                 break;
             case (4):

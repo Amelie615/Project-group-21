@@ -4,7 +4,7 @@ import { hash_id, ph_empty, type ProbingHashtable} from "./lib/hashtables";
 import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "../Project-group-21/lib/recipe";
 import {questionnaire, changeUnits, units, validAnswer, line} from "./lib/utilities";
 import {convert, Unit} from 'convert';
-import {changeServing, removeIngredient, changeIngredients, addIngredient} from "../Project-group-21/lib/ingredients"
+import {changeServing, removeIngredient, changeIngredients, addIngredient, viewIngredients} from "../Project-group-21/lib/ingredients"
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
@@ -46,8 +46,9 @@ function cookbook(book: Cookbook, keys: CookbookKeys): void {
  * @param {Recipe} recipe the current recipe
  * @param {Cookbook} cookbook the cookbook hashtable
  */
-function recipeMenu(recipe: Recipe, cookbook: Cookbook) {
-    while(true) {
+function recipeMenu(recipe: Recipe, cookbook: Cookbook): void {
+    let done = true
+    while(done) {
         line()
         console.log("What do you want to do?")
         switch(questionnaire(["View recipe", "Edit recipe", "Return"])) {
@@ -55,10 +56,10 @@ function recipeMenu(recipe: Recipe, cookbook: Cookbook) {
                 viewRecipe(recipe)
                 break
             case(2):
-                ingredientsMenu(recipe, cookbook)
+                editRecipe(recipe, cookbook)
                 break
             case(3):
-                return false
+                done = false
             default:
                 console.log("Invalid input")
                 break
@@ -71,9 +72,10 @@ function recipeMenu(recipe: Recipe, cookbook: Cookbook) {
  * @param {Recipe} recipe the current recipe
  * @param {Cookbook} cookbook the cookbook hashtable
  */
-function editRecipe(recipe: Recipe, cookbook: Cookbook) {  
+function editRecipe(recipe: Recipe, cookbook: Cookbook): void {  
     viewRecipe(recipe)
-    while(true) {
+    let done = true
+    while(done) {
         line()
         console.log("What do you want to do?")
             switch(questionnaire(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
@@ -82,14 +84,14 @@ function editRecipe(recipe: Recipe, cookbook: Cookbook) {
                     break;
                 case(2):
                     console.log("Current instructions: " + recipe.instructions)  
-                    recipe.instructions = validAnswer("New Instructions: > ","")
+                    recipe.instructions = validAnswer("New Instructions: > ","", [])
                     break;
                 case(3):
                     console.log("Current name: " + recipe.name)
-                    recipe.name = validAnswer("New name: > ", "")
+                    recipe.name = validAnswer("New name: > ", "", [])
                     break;
                 case(4):
-                    return false
+                    done = false
                 default:
                     console.log("Invalid input")
             }
@@ -136,14 +138,19 @@ function editIngredients(recipe: Recipe, cookbook: Cookbook) {
         console.log("What do you want to do?")
         switch(questionnaire(["add ingredient","remove ingredient", "edit ingredient", "Return"])) {
             case(1):
+                console.log("current ingredients:")
+                viewIngredients(recipe)
+                line()
                 addIngredient(recipe, cookbook)
                 break
             case(2):
-                // printa ut ingredients
-                removeIngredient(recipe, validAnswer("What ingredient do you want to remove? > ", ""))
+                console.log("current ingredients:")
+                viewIngredients(recipe)
+                removeIngredient(recipe, validAnswer("What ingredient do you want to remove? > ", "", []))
                 break
             case(3):
-                // printa ut ingredients
+                console.log("current ingredients:")
+                viewIngredients(recipe)
                 changeIngredients(recipe, cookbook)
                 break
             case(4):

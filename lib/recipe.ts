@@ -3,7 +3,7 @@ import {ph_insert, ph_lookup} from "./hashtables";
 import * as PromptSync from "prompt-sync";
 import {questionnaire, getRandomArbitrary, units, changeUnits, validAnswer, line } from './utilities';
 import {convert, Unit, BestKind} from 'convert';
-import { makeIngredient } from './ingredients';
+import { makeIngredient, viewIngredients } from './ingredients';
 import { ProbingHashtable } from './hashtables';
 import { Cookbook, CookbookKeys } from "../main";
 
@@ -31,9 +31,9 @@ export type Ingredients = Array<string>
  */
 export function initializeRecipe(keys: CookbookKeys): Recipe {
     const newRecipe: Recipe = {
-        name: validAnswer("Name: > ", "").toLowerCase(),
+        name: validAnswer("Name: > ", "", []).toLowerCase(),
         id: getRandomArbitrary(1000, 9999, keys),                     
-        servings: parseInt(validAnswer("Estimated servings: > ", "num")),
+        servings: parseInt(validAnswer("Estimated servings: > ", "num", [])),
         instructions: "",
         ingredients: [],
         measurements: [],
@@ -55,10 +55,13 @@ export function createRecipe(cookbook: Cookbook, keys: CookbookKeys): void {
     const newRecipe: Recipe = initializeRecipe(keys)
     let done : Boolean = true;
     while (done === true) {
-        makeIngredient(newRecipe, validAnswer("Name an ingredient > ", ""), cookbook);
-        done = prompt("Add another ingredient? (y/n) ").toLowerCase() === "y" ? true : false; // felhantering
+        const ingredient: string = validAnswer("Name an ingredient > ", "", [])
+        makeIngredient(newRecipe, ingredient, cookbook);
+        if(validAnswer("Do you want to add another ingredient? y/n > ", "opt", ["n","y"]).toLowerCase() === "n") {
+            done = false
+        }
     } 
-    newRecipe.instructions = validAnswer("instructions: > ", "")
+    newRecipe.instructions = validAnswer("instructions: > ", "", [])
     viewRecipe(newRecipe)
     keys.push(pair(newRecipe.name, newRecipe.id))
     ph_insert(cookbook, newRecipe.id, newRecipe)
@@ -78,12 +81,10 @@ export function viewRecipe(recipe : Recipe): void {
     line()
     console.log("ingredients: ")
     line()
-    for (let i = 0; i < recipe.ingredients.length; i++ ) {
-        console.log(recipe.ingredients[i] + " " + head(recipe.measurements[i]) + tail(recipe.measurements[i]) + "\n")
-    }
-    console.log("servings" + " " + recipe.servings)
+    viewIngredients(recipe)
+    console.log("servings:" + " " + recipe.servings)
     line()
-    console.log("instructions")
+    console.log("instructions:")
     line()
     console.log(recipe.instructions + "\n")
     }
@@ -97,7 +98,7 @@ export function viewRecipe(recipe : Recipe): void {
  * @returns {Recipe | boolean} the recipes found or false if no recipe found
  */
 export function searchRecipe(keys: CookbookKeys, cookbook: Cookbook): Recipe |  boolean {  
-    const userSearch: string = validAnswer("Search >", "").toLowerCase()                              
+    const userSearch: string = validAnswer("Search >", "", []).toLowerCase()                              
     const searchResult: Array<string> = []
     keys.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
         const name : string = head(element)
