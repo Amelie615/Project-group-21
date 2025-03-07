@@ -5,11 +5,11 @@ import {questionnaire, getRandomArbitrary, units, changeUnits, validAnswer, line
 import {convert, Unit, BestKind} from 'convert';
 import { makeIngredient } from './ingredients';
 import { ProbingHashtable } from './hashtables';
-import { Cookbook } from "../main";
+import { Cookbook, CookbookKeys } from "../main";
 
-
-// const { convert } = require("convert")
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
+
+
 
 export type Recipe = {
     name: string,
@@ -24,38 +24,51 @@ export type Measurements = Array<Pair<number, Unit | string>>
 export type Ingredients = Array<string> 
 
 
-
-export function emptyRecipe(keysToHashed: Array<Pair<string, number>>): Recipe {
-    const empty_recipe: Recipe = {
+/**
+ * initializes a new recipe
+ * @param {CookbookKeys} keys the name and id for all recipes in cookbook
+ * @returns a recipe
+ */
+export function initializeRecipe(keys: CookbookKeys): Recipe {
+    const newRecipe: Recipe = {
         name: validAnswer("Name: > ", "").toLowerCase(),
-        id: getRandomArbitrary(1000, 9999, keysToHashed),                     
+        id: getRandomArbitrary(1000, 9999, keys),                     
         servings: parseInt(validAnswer("Estimated servings: > ", "num")),
         instructions: "",
         ingredients: [],
         measurements: [],
         unit: "metric"
     }
-    return empty_recipe
+    return newRecipe
 }
 
 
 
-
-export function createRecipe(hashedTable: Cookbook, keysToHashed: Array<Pair<string, number>>): void {
+/**
+ * creates a new recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ * @param {CookbookKeys} keys the name and id for all recipes in cookbook
+ */
+export function createRecipe(cookbook: Cookbook, keys: CookbookKeys): void {
     line()
     console.log("Enter the following information for your recipe \n(It is possible to change this afterwards, don't worry.)")
-    const newRecipe: Recipe = emptyRecipe(keysToHashed)
+    const newRecipe: Recipe = initializeRecipe(keys)
     let done : Boolean = true;
     while (done === true) {
-        makeIngredient(newRecipe, validAnswer("Name an ingredient > ", ""), hashedTable);
+        makeIngredient(newRecipe, validAnswer("Name an ingredient > ", ""), cookbook);
         done = prompt("Add another ingredient? (y/n) ").toLowerCase() === "y" ? true : false; // felhantering
     } 
     newRecipe.instructions = validAnswer("instructions: > ", "")
     viewRecipe(newRecipe)
-    keysToHashed.push(pair(newRecipe.name, newRecipe.id))
-    ph_insert(hashedTable, newRecipe.id, newRecipe)
+    keys.push(pair(newRecipe.name, newRecipe.id))
+    ph_insert(cookbook, newRecipe.id, newRecipe)
 }
 
+
+/**
+ * prints out recipe
+ * @param {Recipe} recipe the chosen recipe
+ */
 export function viewRecipe(recipe : Recipe): void {
     console.log(recipe)
     if (recipe === undefined) {console.log("error")}
@@ -76,10 +89,17 @@ export function viewRecipe(recipe : Recipe): void {
     }
 }
 
-export function searchRecipe(keysToHashed: Array<Pair<string, number>>, cookbook: Cookbook): Recipe |  boolean {  
+
+/**
+ * search for a recipe
+ * @param {CookbookKeys} keys the name and id for all recipes in cookbook
+ * @param {Cookbook} cookbook the cookbook hashtable
+ * @returns {Recipe | boolean} the recipes found or false if no recipe found
+ */
+export function searchRecipe(keys: CookbookKeys, cookbook: Cookbook): Recipe |  boolean {  
     const userSearch: string = validAnswer("Search >", "").toLowerCase()                              
     const searchResult: Array<string> = []
-    keysToHashed.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
+    keys.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
         const name : string = head(element)
         if (name.search(userSearch) !== -1 ) {
             searchResult.push(name)
@@ -92,10 +112,10 @@ export function searchRecipe(keysToHashed: Array<Pair<string, number>>, cookbook
     }
     const chosenRecipeName = searchResult[questionnaire(searchResult)- 1]
    
-    for(let i = 0; i < keysToHashed.length; i++) { //titta på deet här
-        console.log(keysToHashed, chosenRecipeName)
-        if(head(keysToHashed[i]) === chosenRecipeName) { //
-            const recipeSearch : Recipe | undefined = ph_lookup(cookbook, tail(keysToHashed[i]))
+    for(let i = 0; i < keys.length; i++) { //titta på deet här
+        console.log(keys, chosenRecipeName)
+        if(head(keys[i]) === chosenRecipeName) { //
+            const recipeSearch : Recipe | undefined = ph_lookup(cookbook, tail(keys[i]))
             recipeSearch === undefined ? userChoice = false : userChoice = recipeSearch
         }
     }

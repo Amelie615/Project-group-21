@@ -1,16 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var hashtables_1 = require("./lib/hashtables");
-var recipe_1 = require("./lib/recipe");
 var fs = require("fs");
+var utilities_1 = require("./lib/utilities");
 //const fs = require('fs');
 //const pasta : Recipe = {}
-var keysToHashed = [];
-var myBook = (0, hashtables_1.ph_empty)(2, hashtables_1.hash_id);
-(0, recipe_1.createRecipe)(myBook, keysToHashed);
-(0, recipe_1.createRecipe)(myBook, keysToHashed);
-(0, recipe_1.createRecipe)(myBook, keysToHashed);
-console.log(keysToHashed);
+// const keysToHashed : Array<Pair<string, number>>= []
+// const myBook : Cookbook = ph_empty(250, hash_id);
+// createRecipe(myBook, keysToHashed)
+// createRecipe(myBook, keysToHashed)
+// createRecipe(myBook, keysToHashed)
+// console.log(keysToHashed)
 //const JSONtest = JSON.stringify(ph_lookup(testHashtable, keysToHashed[0][1]))
 // localStorage.setItem("italiensk" , test)
 // console.log("hejhopp klar")
@@ -20,8 +19,9 @@ console.log(keysToHashed);
 //     console.log('Saved!');
 //   });
 // }
-function saveAll(filename) {
-    fs.writeFileSync(filename, JSON.stringify(myBook));
+function saveCookbook(cookbook) {
+    var cookbookName = (0, utilities_1.validAnswer)("Name your cookbook: >", "");
+    fs.writeFileSync(cookbookName + ".json", JSON.stringify(cookbook));
 }
 function findInformationOld(filename) {
     fs.readFile(filename, 'utf8', function (err, data) {
@@ -38,13 +38,14 @@ function findInformationOld(filename) {
     });
 }
 function findInformation(filename) {
-    var possibleRecipe = fs.readFileSync(filename, 'utf-8');
-    console.log(possibleRecipe);
-    console.log(JSON.parse(possibleRecipe));
+    var possibleCookbook = fs.readFileSync(filename, 'utf-8');
+    console.log(possibleCookbook);
+    console.log(JSON.parse(possibleCookbook));
+    return possibleCookbook;
 }
 function newFunction() {
-    saveAll('italian.txt');
-    findInformation('italian.txt');
+    var possibleCookbook = findInformation("italian.json");
+    //saveCookbook(cookbook)
 }
 newFunction();
 // fs.readFile('italian.txt', 'utf8', (err, data) => {

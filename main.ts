@@ -9,13 +9,14 @@ import {changeServing, removeIngredient, changeIngredients, addIngredient} from 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 export type Cookbook = ProbingHashtable<number, Recipe>
+export type CookbookKeys = Array<Pair<string, number>>
 
 /**
  * Menu for choosing what to do in cookbook
- * @param book the cookbook hashtable
- * @param keys id and name for every recipe
+ * @param {Cookbook} book the cookbook hashtable
+ * @param {CookbookKeys} keys id and name for every recipe
  */
-function cookbook(book: Cookbook, keys: Array<Pair<string, number>>): void {
+function cookbook(book: Cookbook, keys: CookbookKeys): void {
     let done: boolean = true
     while (done) {
         line()
@@ -40,7 +41,12 @@ function cookbook(book: Cookbook, keys: Array<Pair<string, number>>): void {
     }
 }
 
-function recipeMenu(recipe: Recipe, table: Cookbook) {
+/**
+ * Menu for choosing what to do with current recipe
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function recipeMenu(recipe: Recipe, cookbook: Cookbook) {
     while(true) {
         line()
         console.log("What do you want to do?")
@@ -49,7 +55,7 @@ function recipeMenu(recipe: Recipe, table: Cookbook) {
                 viewRecipe(recipe)
                 break
             case(2):
-                ingredientsMenu(recipe, table)
+                ingredientsMenu(recipe, cookbook)
                 break
             case(3):
                 return false
@@ -60,14 +66,19 @@ function recipeMenu(recipe: Recipe, table: Cookbook) {
     }
 }
 
-function editRecipe(recipe: Recipe, table: Cookbook) {  
+/**
+ * Menu for choosing how to edit recipe
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function editRecipe(recipe: Recipe, cookbook: Cookbook) {  
     viewRecipe(recipe)
     while(true) {
         line()
         console.log("What do you want to do?")
             switch(questionnaire(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
                 case(1):
-                    ingredientsMenu(recipe, table)
+                    ingredientsMenu(recipe, cookbook)
                     break;
                 case(2):
                     console.log("Current instructions: " + recipe.instructions)  
@@ -85,20 +96,25 @@ function editRecipe(recipe: Recipe, table: Cookbook) {
     }
 }
 
-function ingredientsMenu(recipe: Recipe, table: Cookbook) {  // working name
+/**
+ * Menu for choosing how to edit ingredients/measurments/servings
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function ingredientsMenu(recipe: Recipe, cookbook: Cookbook) {  // working name
     while(true) {
         line()
         console.log("What do you want to do?")
         switch(questionnaire(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
             case(1):
-                changeServing(recipe, table) //funkar
+                changeServing(recipe, cookbook) //funkar
                 break
             case(2):
-                changeUnits(recipe, table, "switchUnit") //funkar inte
+                changeUnits(recipe, cookbook, "switchUnit") //funkar inte
                 viewRecipe(recipe)
                 break
             case(3):
-                editIngredients(recipe, table) //Submenu
+                editIngredients(recipe, cookbook) //Submenu
                 break
             case(4):
                 return false
@@ -109,13 +125,18 @@ function ingredientsMenu(recipe: Recipe, table: Cookbook) {  // working name
     }
 }
 
-function editIngredients(recipe: Recipe, table: Cookbook) {
+/**
+ * Menu for choosing how to edit ingredients
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function editIngredients(recipe: Recipe, cookbook: Cookbook) {
     while(true) {
         line()
         console.log("What do you want to do?")
         switch(questionnaire(["add ingredient","remove ingredient", "edit ingredient", "Return"])) {
             case(1):
-                addIngredient(recipe, table)
+                addIngredient(recipe, cookbook)
                 break
             case(2):
                 // printa ut ingredients
@@ -123,11 +144,10 @@ function editIngredients(recipe: Recipe, table: Cookbook) {
                 break
             case(3):
                 // printa ut ingredients
-                changeIngredients(recipe, table)
+                changeIngredients(recipe, cookbook)
                 break
             case(4):
                 return false
-                break;
             default:
                 console.log("Invalid input")
         }
@@ -135,11 +155,15 @@ function editIngredients(recipe: Recipe, table: Cookbook) {
 }
 
 
-
-function main() {
+/**
+ * Main function where you can open/quit
+ * initializes cookbook
+ */
+function main(): void {
     const hashedTable: Cookbook = ph_empty(3, hash_id)
     let keysToHashed : Array<Pair<string, number>> = [] //pair(name, id)
-    while (true) {  
+    let done: boolean = true
+    while (done) {  
         const test = questionnaire(["Open", "Quit"])
         switch(test) {
             case(1): 
@@ -147,8 +171,7 @@ function main() {
                 break
             
             case(2):
-                return false;
-                break;
+                done = false;
             default: console.log("default")
         }
         

@@ -8,12 +8,12 @@ var ingredients_1 = require("../Project-group-21/lib/ingredients");
 var prompt = PromptSync({ sigint: true });
 /**
  * Menu for choosing what to do in cookbook
- * @param table the hash table
- * @param table the hash table
- * @returns all keys in the table
+ * @param {Cookbook} book the cookbook hashtable
+ * @param {CookbookKeys} keys id and name for every recipe
  */
 function cookbook(book, keys) {
-    while (true) {
+    var done = true;
+    while (done) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["Create recipe", "Search recipe", "Close cookbook"])) {
@@ -30,13 +30,18 @@ function cookbook(book, keys) {
                 }
                 break;
             case (3):
-                return false;
+                done = false;
             default:
                 console.log("Invalid input");
         }
     }
 }
-function recipeMenu(recipe, table) {
+/**
+ * Menu for choosing what to do with current recipe
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function recipeMenu(recipe, cookbook) {
     while (true) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
@@ -45,7 +50,7 @@ function recipeMenu(recipe, table) {
                 (0, recipe_1.viewRecipe)(recipe);
                 break;
             case (2):
-                ingredientsMenu(recipe, table);
+                ingredientsMenu(recipe, cookbook);
                 break;
             case (3):
                 return false;
@@ -55,14 +60,19 @@ function recipeMenu(recipe, table) {
         }
     }
 }
-function editRecipe(recipe, table) {
+/**
+ * Menu for choosing how to edit recipe
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function editRecipe(recipe, cookbook) {
     (0, recipe_1.viewRecipe)(recipe);
     while (true) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
             case (1):
-                ingredientsMenu(recipe, table);
+                ingredientsMenu(recipe, cookbook);
                 break;
             case (2):
                 console.log("Current instructions: " + recipe.instructions);
@@ -79,20 +89,25 @@ function editRecipe(recipe, table) {
         }
     }
 }
-function ingredientsMenu(recipe, table) {
+/**
+ * Menu for choosing how to edit ingredients/measurments/servings
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function ingredientsMenu(recipe, cookbook) {
     while (true) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
             case (1):
-                (0, ingredients_1.changeServing)(recipe, table); //funkar
+                (0, ingredients_1.changeServing)(recipe, cookbook); //funkar
                 break;
             case (2):
-                (0, utilities_1.changeUnits)(recipe, table, "switchUnit"); //funkar inte
+                (0, utilities_1.changeUnits)(recipe, cookbook, "switchUnit"); //funkar inte
                 (0, recipe_1.viewRecipe)(recipe);
                 break;
             case (3):
-                editIngredients(recipe, table); //Submenu
+                editIngredients(recipe, cookbook); //Submenu
                 break;
             case (4):
                 return false;
@@ -102,13 +117,18 @@ function ingredientsMenu(recipe, table) {
         }
     }
 }
-function editIngredients(recipe, table) {
+/**
+ * Menu for choosing how to edit ingredients
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+function editIngredients(recipe, cookbook) {
     while (true) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["add ingredient", "remove ingredient", "edit ingredient", "Return"])) {
             case (1):
-                (0, ingredients_1.addIngredient)(recipe, table);
+                (0, ingredients_1.addIngredient)(recipe, cookbook);
                 break;
             case (2):
                 // printa ut ingredients
@@ -116,28 +136,31 @@ function editIngredients(recipe, table) {
                 break;
             case (3):
                 // printa ut ingredients
-                (0, ingredients_1.changeIngredients)(recipe, table);
+                (0, ingredients_1.changeIngredients)(recipe, cookbook);
                 break;
             case (4):
                 return false;
-                break;
             default:
                 console.log("Invalid input");
         }
     }
 }
+/**
+ * Main function where you can open/quit
+ * initializes cookbook
+ */
 function main() {
     var hashedTable = (0, hashtables_1.ph_empty)(3, hashtables_1.hash_id);
     var keysToHashed = []; //pair(name, id)
-    while (true) {
+    var done = true;
+    while (done) {
         var test = (0, utilities_1.questionnaire)(["Open", "Quit"]);
         switch (test) {
             case (1):
                 cookbook(hashedTable, keysToHashed); //Använder inte tagen just nu så bara placeholder
                 break;
             case (2):
-                return false;
-                break;
+                done = false;
             default: console.log("default");
         }
     }

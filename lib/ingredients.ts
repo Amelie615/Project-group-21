@@ -3,18 +3,20 @@ import * as PromptSync from "prompt-sync";
 import {convert, Unit, BestKind} from 'convert';
 import {Recipe, viewRecipe} from "../lib/recipe"
 import { Cookbook } from '../main';
-import { unitstring, units, changeUnits, validAnswer } from './utilities';
+import { unitstring, units, changeUnits, validAnswer, stringToUnit } from './utilities';
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 
+/**
+ * Create a new ingredient
+ * @param {Recipe} recipe the current recipe
+ * @param {string} name name of the new ingredient
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
+
 export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook): void {
-    const inputMeasurements: string = prompt("Enter amount of " + name + " > ").toLowerCase() // bättre felhantering
-    if (inputMeasurements === "") {
-        console.log("invalid input")
-        makeIngredient(recipe, name, cookbook)
-        return
-    }
+    const inputMeasurements: string = validAnswer("Enter amount of " + name + " > ", "").toLowerCase() // bättre felhantering
     const integersFromMeasurements = inputMeasurements.match(/(\d+)/) 
     if (integersFromMeasurements === null) {
         console.log("invalid input")
@@ -34,17 +36,11 @@ export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook)
     }
 }
 
-function stringToUnit (unit: string): Unit | string {
-    let newUnit: Unit = "ml"
-    for (let i = 0; i < unitstring.length; i++) {
-        if (unit === unitstring[i]) {
-            newUnit = units[i]
-            return newUnit
-        }
-    }
-    return unit
-} 
-
+/**
+ * Change serving amount for current recipe
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
 export function changeServing(recipe: Recipe, table: Cookbook): void {        
     console.log("Recipe currently serves " + recipe.servings + " people")
     let newServings: number = parseInt(validAnswer("New serving size: ", "num"), 10)
@@ -57,7 +53,11 @@ export function changeServing(recipe: Recipe, table: Cookbook): void {
     viewRecipe(recipe)
 }
 
-
+/**
+ * remove chosen ingredient
+ * @param {Recipe} recipe the current recipe
+ * @param {string} ingredientSearch ingredient to remove
+ */
 export function removeIngredient(recipe: Recipe, ingredientSearch: string): void {
     let indexToRemove: number = recipe.ingredients.indexOf(ingredientSearch)
     if(indexToRemove !== -1) {
@@ -67,11 +67,16 @@ export function removeIngredient(recipe: Recipe, ingredientSearch: string): void
     } else { console.log("Ingredient doesn't exist") }
 }
 
+
+/**
+ * Add new ingredient to current recipe
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
 export function addIngredient(recipe: Recipe, cookbook: Cookbook): void {
     let done = true
     while(done === true) {
         makeIngredient(recipe, validAnswer("Ingredient name > ", ""), cookbook)
-
         if(prompt("Do you want to add another ingredient? y/n > ").toLowerCase() !== "y") {
             done = false
         }
@@ -80,6 +85,11 @@ export function addIngredient(recipe: Recipe, cookbook: Cookbook): void {
 }
 
 
+/**
+ * Change a chosen ingredient
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ */
 export function changeIngredients(recipe: Recipe, cookbook: Cookbook): void { 
     let done = true
     while(done === true) {

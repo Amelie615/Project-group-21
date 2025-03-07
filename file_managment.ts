@@ -3,16 +3,17 @@ import { ph_empty, hash_id, ph_insert, ph_lookup } from "./lib/hashtables";
 import { Recipe, createRecipe } from "./lib/recipe";
 import { Pair } from "./lib/list";
 import * as fs from 'fs';
+import { validAnswer } from "./lib/utilities";
 //const fs = require('fs');
 
 //const pasta : Recipe = {}
 
-const keysToHashed : Array<Pair<string, number>>= []
-const myBook : Cookbook = ph_empty(2, hash_id);
-createRecipe(myBook, keysToHashed)
-createRecipe(myBook, keysToHashed)
-createRecipe(myBook, keysToHashed)
-console.log(keysToHashed)
+// const keysToHashed : Array<Pair<string, number>>= []
+// const myBook : Cookbook = ph_empty(250, hash_id);
+// createRecipe(myBook, keysToHashed)
+// createRecipe(myBook, keysToHashed)
+// createRecipe(myBook, keysToHashed)
+// console.log(keysToHashed)
 
 //const JSONtest = JSON.stringify(ph_lookup(testHashtable, keysToHashed[0][1]))
 // localStorage.setItem("italiensk" , test)
@@ -26,8 +27,9 @@ console.log(keysToHashed)
 // }
 
 
-function saveAll(filename) {
-    fs.writeFileSync(filename, JSON.stringify(myBook))
+function saveCookbook(cookbook : Cookbook) {
+    const cookbookName = validAnswer("Name your cookbook: >", "")
+    fs.writeFileSync(cookbookName + ".json", JSON.stringify(cookbook))
 }
 
 function findInformationOld(filename : string) {
@@ -44,18 +46,27 @@ function findInformationOld(filename : string) {
     });
 }
 
-function findInformation(filename: string) {
-    const possibleRecipe = fs.readFileSync(filename, 'utf-8')
-    console.log(possibleRecipe)
-    console.log(JSON.parse(possibleRecipe))
+function readCookbook(filename: string) : string {
+    const possibleCookbook = fs.readFileSync(filename, 'utf-8')
+    //console.log(possibleCookbook)
+    //console.log(JSON.parse(possibleCookbook))
+    return JSON.parse(possibleCookbook)
 }
 
 function newFunction() {
-    saveAll('italian.txt')
-    findInformation('italian.txt')
+    const possibleCookbook : string = readCookbook("italian.json")
+    //saveCookbook(cookbook)
+    
+    
 }
 
-newFunction()
+
+function createCookbook() {
+
+}
+
+
+
 // fs.readFile('italian.txt', 'utf8', (err, data) => {
 //     if (err) {
 //         console.error(err);

@@ -3,24 +3,36 @@ import {convert, Unit, BestKind} from 'convert';
 import {Recipe} from "../lib/recipe"
 import {head, tail, pair, Pair} from '../lib/list'
 import { ProbingHashtable } from "./hashtables";
-import { Cookbook } from "../main";
+import { Cookbook, CookbookKeys } from "../main";
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "ounces", "cup", "tsp", "tbsp", "teaspoon", "tablespoon"] // FIXA SYSTEM
 export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "ounces", "cup", "tsp", "tbsp", "teaspoon", "tablespoon"] // FIXA SYSTEM
 
 
-export function questionnaire(vallista: Array<string>) : number {
+/**
+ * creates a list of options to choose from
+ * @param {Array<string>} options the options to be printed
+ * @returns the number for a specific option
+ */
+export function questionnaire(options: Array<string>) : number {
     line()
-    for(let i = 0; i < vallista.length; i++) {
-        console.log(i + 1 + " " + vallista[i]);
+    for(let i = 0; i < options.length; i++) {
+        console.log(i + 1 + " " + options[i]);
     }
     line()
-    let q: string = prompt(">  ")
+    let chosenOp: string = prompt(">  ")
     console.log(" ")
-    return(Number(q));
+    return(Number(chosenOp));
 }
 
+/**
+ * creates a random number between a chosen min and max value
+ * @param {number} min the minimun value for the number
+ * @param {number} max the maximum value for the number
+ * @param {CookbookKeys} keys the keys and names for the recipes in the cookbook
+ * @returns a random number
+ */
 export function getRandomArbitrary(min : number, max : number, keys : Array<Pair<string, number>>): number {
     let id: number = Math.floor(Math.random() * (max - min) + min);
     for (let i = 0; i < keys.length; i++) {
@@ -31,7 +43,14 @@ export function getRandomArbitrary(min : number, max : number, keys : Array<Pair
     return id
 }
 
-export function changeUnits(recipe : Recipe, table: Cookbook, flag: string): void { 
+
+/**
+ * changes units on ingredients
+ * @param {Recipe} recipe the current recipe
+ * @param {Cookbook} cookbook the cookbook hashtable
+ * @param {string} flag a flag that indicates how the units should be handled
+ */
+export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): void { 
     let currentUnit: Array<BestKind | undefined> = ["metric", "imperial"]
     let indexunit: number = recipe.unit === "metric"? 0: 1
     if (flag === "switchUnit") {
@@ -49,6 +68,13 @@ export function changeUnits(recipe : Recipe, table: Cookbook, flag: string): voi
     recipe.unit = currentUnit[indexunit]
 }
 
+
+/**
+ * checks if an input is valid
+ * @param {string} usedPrompt the chosen prompt for the input
+ * @param {string} flag indicates if the input should contain a number
+ * @returns a non empty input
+ */
 export function validAnswer(usedPrompt: string, flag: string): string {
     const answer: string = prompt(usedPrompt)
     let removeWhiteSpace: string = ""
@@ -65,6 +91,23 @@ export function validAnswer(usedPrompt: string, flag: string): string {
     return answer
 }
 
+//Prints line for UI
 export function line(): void {
     console.log("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 }
+
+/**
+ * converts string to Unit type
+ * @param {string} unit the string to convert
+ * @returns the corresponding unit to given string, or the string if no equivalent unit exists
+ */
+export function stringToUnit (unit: string): Unit | string {
+    let newUnit: Unit = "ml"
+    for (let i = 0; i < unitstring.length; i++) {
+        if (unit === unitstring[i]) {
+            newUnit = units[i]
+            return newUnit
+        }
+    }
+    return unit
+} 
