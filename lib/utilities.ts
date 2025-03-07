@@ -11,11 +11,11 @@ export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid 
 
 
 export function questionnaire(vallista: Array<string>) : number {
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
+    line()
     for(let i = 0; i < vallista.length; i++) {
         console.log(i + 1 + " " + vallista[i]);
     }
-    console.log(" ")
+    line()
     let q: string = prompt(">  ")
     console.log(" ")
     return(Number(q));
@@ -47,4 +47,24 @@ export function changeUnits(recipe : Recipe, table: Cookbook, flag: string): voi
         } 
     }
     recipe.unit = currentUnit[indexunit]
+}
+
+export function validAnswer(usedPrompt: string, flag: string): string {
+    const answer: string = prompt(usedPrompt)
+    let removeWhiteSpace: string = ""
+    if (flag === "num") {
+        let removeLetandSpace = answer.match(/(\d+)/)
+        removeWhiteSpace = removeLetandSpace === null? "": removeLetandSpace[1]
+    } else {
+        removeWhiteSpace = answer.replace(/\s/g,"");
+    }
+    if (removeWhiteSpace === "") {
+        console.log("invalid input.")
+        validAnswer(usedPrompt, flag)
+    }
+    return answer
+}
+
+export function line(): void {
+    console.log("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 }

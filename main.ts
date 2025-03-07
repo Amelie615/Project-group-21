@@ -2,7 +2,7 @@ import * as PromptSync from "prompt-sync";
 import {pair, head, tail, Pair,} from './lib/list';
 import { hash_id, ph_empty, type ProbingHashtable} from "./lib/hashtables";
 import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "../Project-group-21/lib/recipe";
-import {questionnaire, changeUnits, units} from "./lib/utilities";
+import {questionnaire, changeUnits, units, validAnswer, line} from "./lib/utilities";
 import {convert, Unit} from 'convert';
 import {changeServing, removeIngredient, changeIngredients, addIngredient} from "../Project-group-21/lib/ingredients"
 
@@ -10,41 +10,49 @@ const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 export type Cookbook = ProbingHashtable<number, Recipe>
 
-function cookbook(hashedTable: Cookbook, keysToHashed: Array<Pair<string, number>>) {
-    while (true) {
-    switch(questionnaire(["Create recipe", "Search recipe", "Close cookbook"])) {
-        case(1):
-            createRecipe(hashedTable, keysToHashed)
-            break;
-        case(2):
-            const search: Recipe | boolean = searchRecipe(keysToHashed, hashedTable)
-            if (typeof search === "boolean") {
-                console.log("Recipe not found.")
-            } else {
-                recipeHandelingMenu(search, hashedTable)
-            }
-            break;
-        case(3): 
-            return false
-        default:
-            console.log("Invalid input")
+/**
+ * Menu for choosing what to do in cookbook
+ * @param book the cookbook hashtable
+ * @param keys id and name for every recipe
+ */
+function cookbook(book: Cookbook, keys: Array<Pair<string, number>>): void {
+    let done: boolean = true
+    while (done) {
+        line()
+        console.log("What do you want to do?")
+        switch(questionnaire(["Create recipe", "Search recipe", "Close cookbook"])) {
+            case(1):
+                createRecipe(book, keys)
+                break;
+            case(2):
+                const search: Recipe | boolean = searchRecipe(keys, book)
+                if (typeof search === "boolean") {
+                    console.log("Recipe not found.")
+                } else {
+                    recipeMenu(search, book)
+                }
+                break;
+            case(3): 
+                done = false
+            default:
+                console.log("Invalid input")
         }
     }
 }
 
-function recipeHandelingMenu(recipe: Recipe, table: Cookbook) {
+function recipeMenu(recipe: Recipe, table: Cookbook) {
     while(true) {
-        console.log("What do you want to do?\n")
+        line()
+        console.log("What do you want to do?")
         switch(questionnaire(["View recipe", "Edit recipe", "Return"])) {
             case(1):
                 viewRecipe(recipe)
                 break
             case(2):
-                ingredientAndMesasurmentsEditSubmenu(recipe, table)
+                ingredientsMenu(recipe, table)
                 break
             case(3):
                 return false
-                break;
             default:
                 console.log("Invalid input")
                 break
@@ -55,31 +63,32 @@ function recipeHandelingMenu(recipe: Recipe, table: Cookbook) {
 function editRecipe(recipe: Recipe, table: Cookbook) {  
     viewRecipe(recipe)
     while(true) {
-    console.log("What do you want to do?\n")
-        switch(questionnaire(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
-            case(1):
-                ingredientAndMesasurmentsEditSubmenu(recipe, table)
-                break;
-            case(2):
-                console.log("current instructions: " + recipe.instructions)  
-                recipe.instructions = prompt("")
-                break;
-            case(3):
-                console.log("current name: " + recipe.name)
-                recipe.name = prompt("")
-                break;
-            case(4):
-                return false
-                break;
-            default:
-                console.log("Invalid input")
-        }
+        line()
+        console.log("What do you want to do?")
+            switch(questionnaire(["Edit ingredients and measurements", "Edit instructions", "Edit name", "Return"])) {
+                case(1):
+                    ingredientsMenu(recipe, table)
+                    break;
+                case(2):
+                    console.log("Current instructions: " + recipe.instructions)  
+                    recipe.instructions = validAnswer("New Instructions: > ","")
+                    break;
+                case(3):
+                    console.log("Current name: " + recipe.name)
+                    recipe.name = validAnswer("New name: > ", "")
+                    break;
+                case(4):
+                    return false
+                default:
+                    console.log("Invalid input")
+            }
     }
 }
 
-function ingredientAndMesasurmentsEditSubmenu(recipe: Recipe, table: Cookbook) {  // working name
+function ingredientsMenu(recipe: Recipe, table: Cookbook) {  // working name
     while(true) {
-    console.log("What do you want to do?\n")
+        line()
+        console.log("What do you want to do?")
         switch(questionnaire(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
             case(1):
                 changeServing(recipe, table) //funkar
@@ -93,7 +102,6 @@ function ingredientAndMesasurmentsEditSubmenu(recipe: Recipe, table: Cookbook) {
                 break
             case(4):
                 return false
-                break;
             default:
                 console.log("Invalid input")
                 break
@@ -103,15 +111,18 @@ function ingredientAndMesasurmentsEditSubmenu(recipe: Recipe, table: Cookbook) {
 
 function editIngredients(recipe: Recipe, table: Cookbook) {
     while(true) {
-        console.log("What do you want to do?\n")
+        line()
+        console.log("What do you want to do?")
         switch(questionnaire(["add ingredient","remove ingredient", "edit ingredient", "Return"])) {
             case(1):
                 addIngredient(recipe, table)
                 break
             case(2):
-                removeIngredient(recipe, prompt("What ingredient do you want to remove? > "))
+                // printa ut ingredients
+                removeIngredient(recipe, validAnswer("What ingredient do you want to remove? > ", ""))
                 break
             case(3):
+                // printa ut ingredients
                 changeIngredients(recipe, table)
                 break
             case(4):
@@ -126,9 +137,9 @@ function editIngredients(recipe: Recipe, table: Cookbook) {
 
 
 function main() {
-    const hashedTable: Cookbook = ph_empty(13, hash_id)
+    const hashedTable: Cookbook = ph_empty(3, hash_id)
     let keysToHashed : Array<Pair<string, number>> = [] //pair(name, id)
-    while (true) {   
+    while (true) {  
         const test = questionnaire(["Open", "Quit"])
         switch(test) {
             case(1): 

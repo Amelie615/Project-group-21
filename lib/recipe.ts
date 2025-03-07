@@ -1,7 +1,7 @@
 import {pair, head, tail, Pair,} from './list';
 import {ph_insert, ph_lookup} from "./hashtables";
 import * as PromptSync from "prompt-sync";
-import {questionnaire, getRandomArbitrary, units, changeUnits } from './utilities';
+import {questionnaire, getRandomArbitrary, units, changeUnits, validAnswer, line } from './utilities';
 import {convert, Unit, BestKind} from 'convert';
 import { makeIngredient } from './ingredients';
 import { ProbingHashtable } from './hashtables';
@@ -17,7 +17,6 @@ export type Recipe = {
     ingredients: Ingredients,
     measurements: Measurements, //Array<Pair<Number, String>>
     servings: number,
-    tags: Array<string>,
     instructions: string,
     unit: BestKind | undefined
 } 
@@ -28,11 +27,10 @@ export type Ingredients = Array<string>
 
 export function emptyRecipe(keysToHashed: Array<Pair<string, number>>): Recipe {
     const empty_recipe: Recipe = {
-        name: prompt("name: > ").toLowerCase(),
-        id: getRandomArbitrary(1000, 9999, keysToHashed),                      //make sure its unique
-        servings: prompt("Estimated servings: > "),
-        tags: [],
-        instructions: prompt("instructions: > "),
+        name: validAnswer("Name: > ", "").toLowerCase(),
+        id: getRandomArbitrary(1000, 9999, keysToHashed),                     
+        servings: parseInt(validAnswer("Estimated servings: > ", "num")),
+        instructions: "",
         ingredients: [],
         measurements: [],
         unit: "metric"
@@ -40,15 +38,20 @@ export function emptyRecipe(keysToHashed: Array<Pair<string, number>>): Recipe {
     return empty_recipe
 }
 
+
+
+
 export function createRecipe(hashedTable: Cookbook, keysToHashed: Array<Pair<string, number>>): void {
+    line()
+    console.log("Enter the following information for your recipe \n(It is possible to change this afterwards, don't worry.)")
     const newRecipe: Recipe = emptyRecipe(keysToHashed)
     let done : Boolean = true;
     while (done === true) {
-        makeIngredient(newRecipe, prompt("Name an ingredient > "), hashedTable);
-        done = prompt("Add another ingredient? y/n ").toLowerCase() === "y" ? true : false;
+        makeIngredient(newRecipe, validAnswer("Name an ingredient > ", ""), hashedTable);
+        done = prompt("Add another ingredient? (y/n) ").toLowerCase() === "y" ? true : false; // felhantering
     } 
-    // changeUnits(newRecipe, hashedTable, "")
-    console.log(newRecipe)
+    newRecipe.instructions = validAnswer("instructions: > ", "")
+    viewRecipe(newRecipe)
     keysToHashed.push(pair(newRecipe.name, newRecipe.id))
     ph_insert(hashedTable, newRecipe.id, newRecipe)
 }
@@ -57,25 +60,24 @@ export function viewRecipe(recipe : Recipe): void {
     console.log(recipe)
     if (recipe === undefined) {console.log("error")}
     else {
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
+    line()
     console.log(recipe.name)
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
-    console.log("ingredients: \n")
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
+    line()
+    console.log("ingredients: ")
+    line()
     for (let i = 0; i < recipe.ingredients.length; i++ ) {
         console.log(recipe.ingredients[i] + " " + head(recipe.measurements[i]) + tail(recipe.measurements[i]) + "\n")
     }
-    console.log("servings" + " " + recipe.servings + "\n")
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~")
+    console.log("servings" + " " + recipe.servings)
+    line()
     console.log("instructions")
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    line()
     console.log(recipe.instructions + "\n")
-    console.log("~~~~~~~~~~~~~~~~~~~~~~~~\n")
     }
 }
 
 export function searchRecipe(keysToHashed: Array<Pair<string, number>>, cookbook: Cookbook): Recipe |  boolean {  
-    const userSearch: string = prompt("Search >").toLowerCase()                              
+    const userSearch: string = validAnswer("Search >", "").toLowerCase()                              
     const searchResult: Array<string> = []
     keysToHashed.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
         const name : string = head(element)

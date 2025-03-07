@@ -3,13 +3,13 @@ import * as PromptSync from "prompt-sync";
 import {convert, Unit, BestKind} from 'convert';
 import {Recipe, viewRecipe} from "../lib/recipe"
 import { Cookbook } from '../main';
-import { unitstring, units, changeUnits } from './utilities';
+import { unitstring, units, changeUnits, validAnswer } from './utilities';
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 
 export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook): void {
-    const inputMeasurements: string = prompt("Enter amount of " + name + " > ").toLowerCase()
+    const inputMeasurements: string = prompt("Enter amount of " + name + " > ").toLowerCase() // bättre felhantering
     if (inputMeasurements === "") {
         console.log("invalid input")
         makeIngredient(recipe, name, cookbook)
@@ -47,7 +47,7 @@ function stringToUnit (unit: string): Unit | string {
 
 export function changeServing(recipe: Recipe, table: Cookbook): void {        
     console.log("Recipe currently serves " + recipe.servings + " people")
-    let newServings: number = parseInt(prompt("New serving size: "), 10)
+    let newServings: number = parseInt(validAnswer("New serving size: ", "num"), 10)
     for(let i = 0; i < recipe.measurements.length; i ++) {
         let currentIngredient: number = head(recipe.measurements[i])
         recipe.measurements[i] = pair(Math.floor(currentIngredient/recipe.servings * newServings), tail(recipe.measurements[i]))
@@ -70,7 +70,7 @@ export function removeIngredient(recipe: Recipe, ingredientSearch: string): void
 export function addIngredient(recipe: Recipe, cookbook: Cookbook): void {
     let done = true
     while(done === true) {
-        makeIngredient(recipe, prompt("Ingredient name > "), cookbook)
+        makeIngredient(recipe, validAnswer("Ingredient name > ", ""), cookbook)
 
         if(prompt("Do you want to add another ingredient? y/n > ").toLowerCase() !== "y") {
             done = false
@@ -83,13 +83,13 @@ export function addIngredient(recipe: Recipe, cookbook: Cookbook): void {
 export function changeIngredients(recipe: Recipe, cookbook: Cookbook): void { 
     let done = true
     while(done === true) {
-        let ingredientSearch: string = prompt("What ingredient do you want to change? > ")
+        let ingredientSearch: string = validAnswer("What ingredient do you want to change? > ", "")
         let indexToChange: number = recipe.ingredients.indexOf(ingredientSearch)
         if(indexToChange !== -1) {
             console.log("Current ingredient: " + recipe.ingredients[indexToChange] + " " + recipe.measurements[indexToChange])
             recipe.ingredients.splice(indexToChange, 1)
             recipe.measurements.splice(indexToChange, 1)
-            makeIngredient(recipe, prompt("Ingredient name > "), cookbook)
+            makeIngredient(recipe, validAnswer("Ingredient name > ", ""), cookbook)
         } else { console.log("Ingredient doesn't exist") }
         if(prompt("Do you want to change another ingredient? y/n > ").toLowerCase() !== "y") {
             done = false

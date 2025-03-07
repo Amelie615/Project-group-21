@@ -1,0 +1,1 @@
+{"keys":[5001,8281],"values":[{"name":"cola","id":5001,"servings":1,"instructions":"öppna och drick","ingredients":["cocacola"],"measurements":[[1,"burk"]],"unit":"metric"},{"name":"pastavatten","id":8281,"servings":2,"instructions":"koka altting och drick","ingredients":["vatten","pasta"],"measurements":[[4.7,"L"],[200,"g"]],"unit":"metric"}],"entries":2}
