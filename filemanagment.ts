@@ -46,12 +46,13 @@ import { validAnswer } from "./lib/utilities";
 
 
 
-function saveCookbook(cookbook : Cookbook, keysToHashed : CookbookKeys) : void {
+export function saveCookbook(cookbook : Cookbook, keysToHashed : CookbookKeys) : void {
     const cookbookName : string = validAnswer("Name your cookbook: >", "", []).toLowerCase()
     if (fs.existsSync("cookbookShelf/" + cookbookName + '.json')) {
         if (validAnswer("A cookbook with the name " + cookbookName + " already exists, do you wish to overwrite it?", "opt", ["y", "n"]).toLowerCase() === "n") {
             console.log("Saving cancelled.")
         } else {
+            cookbook.hash.toString()  //Functions are removed when stringified, in this case simply converting to a string solves the issue (pretty cool find/fix)
             const itemToSave = {book: cookbook, bookKeys: keysToHashed}
             fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(itemToSave))
             console.log("Overwritten succesfully. Save completed.")
@@ -76,22 +77,22 @@ function isKeys(obj : unknown): obj is Array <number | null | undefined> { //Ver
 
 
 function isCookbookValues(obj : unknown) : obj is Array<Recipe | undefined> { //Denna returnar false i det första caset
-    console.log("Öppnar isCookbookValues")
+    //console.log("Öppnar isCookbookValues")
     if (Array.isArray(obj) && obj !== null) {
         const values = obj as unknown[]
         //console.log(values, "values")
         const testtracker = values.every(item => isRecipe(item))
-        console.log(testtracker, "testtracker")
+        //console.log(testtracker, "testtracker")
         return testtracker //det här blir false
-    } else {console.log("cookbook values returnar false")
+    } else {//console.log("cookbook values returnar false")
         return false}
 }
 
 function isRecipe(possibleRecipe : unknown): possibleRecipe is Recipe | null { //saknar check för measurements & ingredients
-    console.log("Öppnar isRecipe")
+    //console.log("Öppnar isRecipe")
     if (typeof possibleRecipe === "object" && possibleRecipe !== null) {
         const assertedRecipe = possibleRecipe as Recipe
-        console.log(assertedRecipe)
+        //console.log(assertedRecipe)
         return (isId(assertedRecipe.id)) && typeof assertedRecipe.instructions === "string" &&
             typeof assertedRecipe.name === "string" && typeof assertedRecipe.servings === "number" &&
             (assertedRecipe.unit === "imperial" || assertedRecipe.unit === "metric")
@@ -107,66 +108,64 @@ function isId(obj: unknown): obj is number | null {
 }
 
 
-function retriveCookbook(cookbookName: string) : object | null {
+function retriveCookbook(cookbookName: string) : object | undefined {
     try {
         fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8')
     } 
     catch (error) {
         console.log("The cookbook could not be found")
-        return null;
+        return;
     }
     const obj = fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8')
     return JSON.parse(obj)
 }
 
 function isCookbook(possibleCookbook : unknown): possibleCookbook is Cookbook {
-    console.log("Öppnar iscookbook")
+    //console.log("Öppnar iscookbook")
     if (typeof possibleCookbook === "object" || possibleCookbook !== null) {
         const assertedCookbook = possibleCookbook as Cookbook
-        console.log("Is an object, asserts cookbook")
+        console.log(assertedCookbook, "has been asserted as cookbook")
+        //console.log("Is an object, asserts cookbook")
         //console.log(assertedCookbook.keys)
-        const test2 = isCookbookValues(assertedCookbook.values)
+        //const test2 = isCookbookValues(assertedCookbook.values)
         //console.log(test1 , "iskeys resultat:")
-        console.log(test2, "isCookbookValue resultat: ")
+        //console.log(test2, "isCookbookValue resultat: ")
         //console.log(test2 "va returns:")
-        return isKeys(assertedCookbook.keys) && test2 && typeof assertedCookbook.entries === "number"
+        return isKeys(assertedCookbook.keys) && isCookbookValues(assertedCookbook.values) && typeof assertedCookbook.entries === "number"
 
 
     } else {
-        console.log("isCookbook hamnar i else")
-        return false} 
+        //console.log("isCookbook hamnar i else")
+        return false
+    } 
 }
 
-export function loadCookbook() : {cookbook: Cookbook, keysToBook: CookbookKeys} | null  {
-    // function createCookbooktest() {
-    //     const keysToHashed : Array<Pair<string, number>>= []
-    //     const myBook : Cookbook = ph_empty(3, hash_id);
-    //     createRecipe(myBook, keysToHashed)
-    //     createRecipe(myBook, keysToHashed)
-    //     return myBook
-    // }
-    //const obj = retriveCookbook("cookbookShelf/italian.json")
-    // const cookbook = createCookbooktest()
-    // saveCookbook(cookbook)
+export function loadCookbook() : [Cookbook, CookbookKeys] | undefined  {
     let notFound : boolean = true
     while (notFound) {
-        const obj : object | null= retriveCookbook(validAnswer("What name does your desired cookbook have?", "", []))
-        if (obj === null) {
+        const obj : object | undefined = retriveCookbook(validAnswer("What name does your desired cookbook have?", "", []))
+        if (obj === undefined) {
             if (validAnswer("Try again? (y/n)", "opt", ["y", "n"]).toLowerCase() === "n") {
-                return null
+                return;
             }
         } else { ///fortsätt jobba här med det nya recordet
-            const savedItem = obj as {cookbook: object, keysToCookbook: CookbookKeys}
-            if (isCookbook(savedItem.cookbook) && Array.isArray(savedItem.keysToCookbook)) { //kan utveckla array.isarray så d faktiskt funkar
-                const cookbookNKeys : Cookbook = {cookbook: savedItem.cookbook as Cookbook
-                return cookbook
+            const retrievedObject = obj as {book: object, bookKeys: object}
+            //console.log(savedItem.bookKeys)
+
+            if (isCookbook(retrievedObject.book) && Array.isArray(retrievedObject.bookKeys)) { //kan utveckla array.isarray så d faktiskt funkar
+                const assertedObject = retrievedObject as {book: Cookbook, bookKeys: CookbookKeys}
+                assertedObject.book.hash = hash_id
+                const cookbookNKeys : [Cookbook , CookbookKeys] = [assertedObject.book, assertedObject.bookKeys] //cookbook: savedItem.cookbook as Cookbook
+                //console.log(savedItem.bookKeys, typeof savedItem.bookKeys)
+                console.log(cookbookNKeys)
+                return cookbookNKeys
             } else {console.log("Error when loading cookbook.")
-                return null
+                return;
             }
         }
          
-    } return null
+    } return;
 }
 
-console.log(loadCookbook())
+//console.log(loadCookbook())
 

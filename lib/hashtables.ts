@@ -165,7 +165,7 @@ export function ch_keys<K, V>(tab: ChainingHashtable<K,V>): List<K> {
 export type ProbingHashtable<K, V> = {
     keys: Array<K | null | undefined>,
     values: Array<V | undefined>,
-    readonly hash: HashFunction<K>,
+    hash: HashFunction<K>,
     entries: number // number of elements
 };
 

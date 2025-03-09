@@ -50,7 +50,7 @@ export function getRandomArbitrary(min : number, max : number, keys : Array<Pair
     return id
 }
 /**
- * Rounds the value number with a precistion amount of deimals
+ * Rounds the value number with a specific amount of decimals
  * @param {number} value the current recipe
  * @param {number} precision the cookbook hashtable
  * @returns a rounded number with precision amount of decimals
@@ -61,7 +61,7 @@ export function round(value: number, precision: number): number {
 }
 
 /**
- * changes units on ingredients
+ * changes units of ingredients
  * @param {Recipe} recipe the current recipe
  * @param {Cookbook} cookbook the cookbook hashtable
  * @param {string} flag a flag that indicates how the units should be handled (either "" or "switchUnit")

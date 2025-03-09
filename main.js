@@ -5,31 +5,35 @@ var hashtables_1 = require("./lib/hashtables");
 var recipe_1 = require("../Project-group-21/lib/recipe");
 var utilities_1 = require("./lib/utilities");
 var ingredients_1 = require("../Project-group-21/lib/ingredients");
+var filemanagment_1 = require("./filemanagment");
 var prompt = PromptSync({ sigint: true });
 /**
  * Menu for choosing what to do in cookbook
  * @param {Cookbook} book the cookbook hashtable
  * @param {CookbookKeys} keys id and name for every recipe
  */
-function cookbook(book, keys) {
+function cookbookMenu(cookbook, keys) {
     var done = true;
     while (done) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
-        switch ((0, utilities_1.questionnaire)(["Create recipe", "Search recipe", "Close cookbook"])) {
+        switch ((0, utilities_1.questionnaire)(["Create recipe", "Search recipe", "Save & Exit cookbook"])) {
             case (1):
-                (0, recipe_1.createRecipe)(book, keys);
+                (0, recipe_1.createRecipe)(cookbook, keys);
                 break;
             case (2):
-                var search = (0, recipe_1.searchRecipe)(keys, book);
+                var search = (0, recipe_1.searchRecipe)(keys, cookbook);
                 if (typeof search === "boolean") {
                     console.log("Recipe not found.");
                 }
                 else {
-                    recipeMenu(search, book);
+                    recipeMenu(search, cookbook);
                 }
                 break;
             case (3):
+                if ((0, utilities_1.validAnswer)("All changes will be lost if you don't save this cookbook before exiting. Do you wish to save it? (y/n)", "opt", ["y", "n"]) === "y") {
+                    (0, filemanagment_1.saveCookbook)(cookbook, keys);
+                }
                 done = false;
             default:
                 console.log("Invalid input");
@@ -102,7 +106,7 @@ function ingredientsMenu(recipe, cookbook) {
         console.log("What do you want to do?");
         switch ((0, utilities_1.questionnaire)(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
             case (1):
-                (0, ingredients_1.changeServing)(recipe, cookbook); //funkar
+                (0, ingredients_1.changeServing)(recipe); //funkar
                 break;
             case (2):
                 (0, utilities_1.changeUnits)(recipe, cookbook, "switchUnit"); //funkar inte
@@ -153,31 +157,34 @@ function editIngredients(recipe, cookbook) {
     }
 }
 function createCookbook(size) {
+    var emptyCookbook = (0, hashtables_1.ph_empty)(size, hashtables_1.hash_id);
+    return emptyCookbook;
 }
 /**
  * Main function where you can open/quit
  * initializes cookbook
  */
 function main() {
-    var hashedTable = (0, hashtables_1.ph_empty)(3, hashtables_1.hash_id);
+    //const hashedTable: Cookbook = ph_empty(3, hash_id)
     var keysToHashed = []; //pair(name, id)
     var done = true;
     while (done) {
-        var test_1 = (0, utilities_1.questionnaire)(["Load", "Create new Cookbook", "Quit"]);
-        switch (test_1) {
+        // const test = questionnaire(["Load", "Create new Cookbook", "Quit"])
+        switch ((0, utilities_1.questionnaire)(["Load", "Create new Cookbook", "Quit"])) {
             case (1):
-                createCookbook((0, utilities_1.validAnswer)("How many recipes should your cookbook fit?"));
-                //cookbook(hashedTable, keysToHashed) //Använder inte tagen just nu så bara placeholder
+                var loadedCookbook = (0, filemanagment_1.loadCookbook)();
+                console.log(loadedCookbook);
+                if (loadedCookbook !== undefined) {
+                    cookbookMenu(loadedCookbook[0], loadedCookbook[1]);
+                }
                 break;
             case (2):
-                loadCookbook();
+                var newCookbook = createCookbook(Number((0, utilities_1.validAnswer)("How many recipes should your cookbook fit? (max. 250)", "num", [])));
+                cookbookMenu(newCookbook, keysToHashed);
                 break;
             case (3):
-                saveCookbook();
-                break;
-            case (4):
                 done = false;
-            default: console.log("default");
+            default: console.log("default"); //bör inte existera?
         }
     }
 }

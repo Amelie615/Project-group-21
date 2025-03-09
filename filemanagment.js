@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.saveCookbook = saveCookbook;
+exports.loadCookbook = loadCookbook;
 var hashtables_1 = require("./lib/hashtables");
-var recipe_1 = require("./lib/recipe");
 var fs = require("fs");
 var utilities_1 = require("./lib/utilities");
 // const keysToHashed : Array<Pair<string, number>>= []
@@ -38,24 +39,25 @@ var utilities_1 = require("./lib/utilities");
  *
  * Change all long variable names to obj & their lowercase type so it's less messy.
  */
-function saveCookbook(cookbook) {
+function saveCookbook(cookbook, keysToHashed) {
     var cookbookName = (0, utilities_1.validAnswer)("Name your cookbook: >", "", []).toLowerCase();
     if (fs.existsSync("cookbookShelf/" + cookbookName + '.json')) {
         if ((0, utilities_1.validAnswer)("A cookbook with the name " + cookbookName + " already exists, do you wish to overwrite it?", "opt", ["y", "n"]).toLowerCase() === "n") {
             console.log("Saving cancelled.");
         }
         else {
-            fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(cookbook));
+            cookbook.hash.toString(); //Functions are removed when stringified, in this case simply converting to a string solves the issue (pretty cool find/fix)
+            var itemToSave = { book: cookbook, bookKeys: keysToHashed };
+            fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(itemToSave));
             console.log("Overwritten succesfully. Save completed.");
         }
     }
     else {
-        fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(cookbook));
+        var itemToSave = { book: cookbook, bookKeys: keysToHashed };
+        fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(itemToSave));
         console.log("Save completed.");
     }
 }
-//Typeguards
-//Funkar
 function isKeys(obj) {
     //console.log("Öppnar isKeys")
     if (Array.isArray(obj)) {
@@ -70,24 +72,23 @@ function isKeys(obj) {
     }
 }
 function isCookbookValues(obj) {
-    console.log("Öppnar isCookbookValues");
+    //console.log("Öppnar isCookbookValues")
     if (Array.isArray(obj) && obj !== null) {
         var values = obj;
         //console.log(values, "values")
         var testtracker = values.every(function (item) { return isRecipe(item); });
-        console.log(testtracker, "testtracker");
+        //console.log(testtracker, "testtracker")
         return testtracker; //det här blir false
     }
-    else {
-        console.log("cookbook values returnar false");
+    else { //console.log("cookbook values returnar false")
         return false;
     }
 }
 function isRecipe(possibleRecipe) {
-    console.log("Öppnar isRecipe");
+    //console.log("Öppnar isRecipe")
     if (typeof possibleRecipe === "object" && possibleRecipe !== null) {
         var assertedRecipe = possibleRecipe;
-        console.log(assertedRecipe);
+        //console.log(assertedRecipe)
         return (isId(assertedRecipe.id)) && typeof assertedRecipe.instructions === "string" &&
             typeof assertedRecipe.name === "string" && typeof assertedRecipe.servings === "number" &&
             (assertedRecipe.unit === "imperial" || assertedRecipe.unit === "metric");
@@ -103,45 +104,60 @@ function isId(obj) {
     return typeof obj === "number" || typeof obj === null;
 }
 function retriveCookbook(cookbookName) {
-    var possibleCookbook = fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8');
-    return JSON.parse(possibleCookbook);
+    try {
+        fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8');
+    }
+    catch (error) {
+        console.log("The cookbook could not be found");
+        return;
+    }
+    var obj = fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8');
+    return JSON.parse(obj);
 }
 function isCookbook(possibleCookbook) {
-    console.log("Öppnar iscookbook");
+    //console.log("Öppnar iscookbook")
     if (typeof possibleCookbook === "object" || possibleCookbook !== null) {
         var assertedCookbook = possibleCookbook;
-        console.log("Is an object, asserts cookbook");
+        console.log(assertedCookbook, "has been asserted as cookbook");
+        //console.log("Is an object, asserts cookbook")
         //console.log(assertedCookbook.keys)
-        var test2 = isCookbookValues(assertedCookbook.values);
+        //const test2 = isCookbookValues(assertedCookbook.values)
         //console.log(test1 , "iskeys resultat:")
-        console.log(test2, "isCookbookValue resultat: ");
+        //console.log(test2, "isCookbookValue resultat: ")
         //console.log(test2 "va returns:")
-        return isKeys(assertedCookbook.keys) && test2 && typeof assertedCookbook.entries === "number";
+        return isKeys(assertedCookbook.keys) && isCookbookValues(assertedCookbook.values) && typeof assertedCookbook.entries === "number";
     }
     else {
-        console.log("isCookbook hamnar i else");
+        //console.log("isCookbook hamnar i else")
         return false;
     }
 }
 function loadCookbook() {
-    function createCookbooktest() {
-        var keysToHashed = [];
-        var myBook = (0, hashtables_1.ph_empty)(3, hashtables_1.hash_id);
-        (0, recipe_1.createRecipe)(myBook, keysToHashed);
-        (0, recipe_1.createRecipe)(myBook, keysToHashed);
-        return myBook;
+    var notFound = true;
+    while (notFound) {
+        var obj = retriveCookbook((0, utilities_1.validAnswer)("What name does your desired cookbook have?", "", []));
+        if (obj === undefined) {
+            if ((0, utilities_1.validAnswer)("Try again? (y/n)", "opt", ["y", "n"]).toLowerCase() === "n") {
+                return;
+            }
+        }
+        else { ///fortsätt jobba här med det nya recordet
+            var retrievedObject = obj;
+            //console.log(savedItem.bookKeys)
+            if (isCookbook(retrievedObject.book) && Array.isArray(retrievedObject.bookKeys)) { //kan utveckla array.isarray så d faktiskt funkar
+                var assertedObject = retrievedObject;
+                assertedObject.book.hash = hashtables_1.hash_id;
+                var cookbookNKeys = [assertedObject.book, assertedObject.bookKeys]; //cookbook: savedItem.cookbook as Cookbook
+                //console.log(savedItem.bookKeys, typeof savedItem.bookKeys)
+                console.log(cookbookNKeys);
+                return cookbookNKeys;
+            }
+            else {
+                console.log("Error when loading cookbook.");
+                return;
+            }
+        }
     }
-    //const obj = retriveCookbook("cookbookShelf/italian.json")
-    // const cookbook = createCookbooktest()
-    // saveCookbook(cookbook)
-    var obj = retriveCookbook("japanese");
-    if (isCookbook(obj)) {
-        var cookbook = obj;
-        return cookbook;
-    }
-    else {
-        console.log("Error when loading cookbook.");
-        return false;
-    }
+    return;
 }
-console.log(loadCookbook());
+//console.log(loadCookbook())

@@ -5,7 +5,7 @@ import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredient
 import {questionnaire, changeUnits, units, validAnswer, line} from "./lib/utilities";
 import {convert, Unit} from 'convert';
 import {changeServing, removeIngredient, changeIngredients, addIngredient, viewIngredients} from "../Project-group-21/lib/ingredients"
-import { loadCookbook } from "./filemanagment";
+import { loadCookbook, saveCookbook } from "./filemanagment";
 
 // DATA DEFINITIONS
 
@@ -39,7 +39,7 @@ function cookbookMenu(cookbook: Cookbook, keys: CookbookKeys): void {
     while (done) {
         line()
         console.log("What do you want to do?")
-        switch(questionnaire(["Create recipe", "Search recipe", "Close cookbook"])) {
+        switch(questionnaire(["Create recipe", "Search recipe", "Save & Exit cookbook"])) {
             case(1):
                 createRecipe(cookbook, keys)
                 break;
@@ -52,6 +52,12 @@ function cookbookMenu(cookbook: Cookbook, keys: CookbookKeys): void {
                 }
                 break;
             case(3): 
+                if (validAnswer(
+                                "All changes will be lost if you don't save this cookbook before exiting. Do you wish to save it? (y/n)",
+                                "opt",
+                                ["y", "n"]) === "y") {
+                            saveCookbook(cookbook, keys)
+                    } 
                 done = false
             default:
                 console.log("Invalid input")
@@ -194,26 +200,23 @@ function main(): void {
     let keysToHashed : Array<Pair<string, number>> = [] //pair(name, id)
     let done: boolean = true
     while (done) {  
-        const test = questionnaire(["Load", "Create new Cookbook", "Quit"])
-        switch(test) {
+        // const test = questionnaire(["Load", "Create new Cookbook", "Quit"])
+        switch(questionnaire(["Load", "Create new Cookbook", "Quit"])) {
             case(1): 
+                const loadedCookbook : [Cookbook, CookbookKeys] | undefined = loadCookbook()
+                console.log(loadedCookbook)
+                if (loadedCookbook !== undefined) {
+                    cookbookMenu(loadedCookbook[0], loadedCookbook[1])
+                }
+                break
+            case(2):
                 const newCookbook = createCookbook(Number(validAnswer("How many recipes should your cookbook fit? (max. 250)", "num", [])))
                 cookbookMenu(newCookbook, keysToHashed)
                 break
-            case(2):
-                const loadedCookbook : Cookbook | null = loadCookbook()
-                if (loadedCookbook !== null) {
-                    cookbookMenu(loadedCookbook, keysToHashed)
-                }
-                break
             case(3):
-                saveCookbook()
-                break
-            case(4):
                 done = false;
-            default: console.log("default")
+            default: console.log("default")     //bör inte existera?
         }
-        
     }
 }
 
