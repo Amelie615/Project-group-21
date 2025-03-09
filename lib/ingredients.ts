@@ -62,7 +62,7 @@ export function changeServing(recipe: Recipe, table: Cookbook): void {
 export function removeIngredient(recipe: Recipe, ingredientSearch: string): void {
     let indexToRemove: number = recipe.ingredients.indexOf(ingredientSearch)
     if(indexToRemove !== -1) {
-        console.log("Removed " + recipe.ingredients[indexToRemove] + " from " + recipe.name + "\n")
+        console.log("\nRemoved " + recipe.ingredients[indexToRemove] + " from " + recipe.name + "\n")
         recipe.ingredients.splice(indexToRemove, 1)
         recipe.measurements.splice(indexToRemove, 1)
     } else { console.log("Ingredient doesn't exist") }
@@ -111,6 +111,6 @@ export function changeIngredients(recipe: Recipe, cookbook: Cookbook): void {
 
 export function viewIngredients(recipe: Recipe): void {
     for (let i = 0; i < recipe.ingredients.length; i++ ) {
-        console.log(recipe.ingredients[i] + " " + head(recipe.measurements[i]) + tail(recipe.measurements[i]) + "\n")
+        console.log(recipe.ingredients[i] + " " + head(recipe.measurements[i]) + " " + tail(recipe.measurements[i]) + "\n")
     }
 }

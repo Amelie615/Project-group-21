@@ -161,8 +161,8 @@ function main() {
     var keysToHashed = []; //pair(name, id)
     var done = true;
     while (done) {
-        var test = (0, utilities_1.questionnaire)(["Open", "Quit"]);
-        switch (test) {
+        var test_1 = (0, utilities_1.questionnaire)(["Open", "Quit"]);
+        switch (test_1) {
             case (1):
                 cookbook(hashedTable, keysToHashed); //Använder inte tagen just nu så bara placeholder
                 break;

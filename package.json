@@ -3,5 +3,10 @@
     "@types/node": "^22.13.9",
     "convert": "^5.8.0",
     "prompt-sync": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/prompt-sync": "^4.2.3",
+    "ts-jest": "^29.2.6"
   }
 }

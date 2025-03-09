@@ -6,8 +6,8 @@ import { ProbingHashtable } from "./hashtables";
 import { Cookbook, CookbookKeys } from "../main";
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
-export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "ounces", "cup", "tsp", "tbsp", "teaspoon", "tablespoon"] // FIXA SYSTEM
-export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "ounces", "cup", "tsp", "tbsp", "teaspoon", "tablespoon"] // FIXA SYSTEM
+export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt", "pt", "liters", "deciliters", "deciliter", "milliliters", "milliliter", "gram", "kilogram", "liter", "gal", "gallons"] // FIXA SYSTEM
+export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt", "pt", "liters", "deciliters", "deciliter", "milliliters", "milliliter", "gram", "kilogram", "liter", "gal", "gallons"] // FIXA SYSTEM
 
 
 /**
@@ -92,9 +92,8 @@ export function validAnswer(usedPrompt: string, flag: string, opt: Array<K>): st
                 if (element === answer) {removeWhiteSpace = answer.trimEnd()}
             });
         }
-        console.log("answer:" + removeWhiteSpace)
         if (removeWhiteSpace === "") {
-            console.log("invalid input.")
+            console.log("Invalid input.")
             continue
         } else {
             wronganswer = false

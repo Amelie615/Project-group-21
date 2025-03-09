@@ -79,13 +79,11 @@ export function viewRecipe(recipe : Recipe): void {
     line()
     console.log(recipe.name)
     line()
-    console.log("ingredients: ")
-    line()
+    console.log("ingredients: \n")
     viewIngredients(recipe)
-    console.log("servings:" + " " + recipe.servings)
+    console.log("servings: " + recipe.servings)
     line()
-    console.log("instructions:")
-    line()
+    console.log("instructions: \n")
     console.log(recipe.instructions + "\n")
     }
 }
