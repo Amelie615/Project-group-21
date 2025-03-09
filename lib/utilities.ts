@@ -71,7 +71,7 @@ export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): 
 /**
  * checks if an input is valid
  * @param {string} usedPrompt the chosen prompt for the input
- * @param {string} flag indicates what kind of answer is valid
+ * @param {string} flag indicates what type of answer is valid
  * @returns a non empty input
  */
 type K = number | string | undefined
