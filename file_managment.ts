@@ -1,16 +1,16 @@
 import { Cookbook } from "./main";
 import { ph_empty, hash_id, ph_insert, ph_lookup } from "./lib/hashtables";
-import { Recipe, createRecipe } from "./lib/recipe";
+import { Recipe, createRecipe, Measurements } from "./lib/recipe";
 import { Pair } from "./lib/list";
 import * as fs from 'fs';
 import { validAnswer } from "./lib/utilities";
 
 
-const keysToHashed : Array<Pair<string, number>>= []
-const myBook : Cookbook = ph_empty(1, hash_id);
-createRecipe(myBook, keysToHashed)
-createRecipe(myBook, keysToHashed)
-createRecipe(myBook, keysToHashed)
+// const keysToHashed : Array<Pair<string, number>>= []
+// const myBook : Cookbook = ph_empty(1, hash_id);
+// createRecipe(myBook, keysToHashed)
+// createRecipe(myBook, keysToHashed)
+// createRecipe(myBook, keysToHashed)
 // console.log(keysToHashed)
 
 //const JSONtest = JSON.stringify(ph_lookup(testHashtable, keysToHashed[0][1]))
@@ -40,6 +40,8 @@ createRecipe(myBook, keysToHashed)
  *              1. Decide how big the hashtable should be. (Can't be zero, should be warning for larger sizes. (Premium edition))
  *              note: id should only be as big as size of hashtable, no?
  *              won't need to name it before saving it.
+ * 
+ * Change all long variable names to obj & their lowercase type so it's less messy.
  */
 
 
@@ -59,27 +61,49 @@ function saveCookbook(cookbook : Cookbook) : void {
     }
 }
 
-//Typeguard
+//Typeguards
 function isCookbook(possibleCookbook : unknown): possibleCookbook is Cookbook {
+    console.log("Öppnar iscookbook")
     if (typeof possibleCookbook === "object" || possibleCookbook !== null) {
         const assertedCookbook = possibleCookbook as Cookbook
+        console.log("asserts cookbook")
+        return isKeys(assertedCookbook.keys) && isCookbookValues(assertedCookbook.values) && typeof assertedCookbook.entries === "number"
 
-        return isKeys(assertedCookbook.keys) && 
-    } return false;
+        
+    } else {
+        console.log("isCookbook hamnar i else")
+        return false}
         
 }
 
 function isKeys(possibleKeys : unknown): possibleKeys is number | null | undefined {
+    console.log("Öppnar isKeys")
     return typeof possibleKeys === "number" || possibleKeys === "null" || possibleKeys === "undefined";
 }
 
-function isCookbookEntries(possibleEntries : unknown) : possibleEntries is Array<Recipe | undefined> {
-    if (Array.isArray(possibleEntries) && possibleEntries !== null) {
-        
-        possibleEntries.every(item => typeof item === "Recipe")
-    } return false
+function isCookbookValues(obj : unknown) : obj is Array<Recipe | undefined> {
+    console.log("Öppnar isCookbookValues")
+    if (Array.isArray(obj) && obj !== null) {
+        const values = obj as unknown[]
+        values.every(item => isRecipe(item) || typeof item === undefined)
+    } else {console.log("cookbook values returnar false")
+        return false}
 }
 
+function isRecipe(possibleRecipe : unknown): possibleRecipe is Recipe | undefined { //saknar check för measurements & ingredients
+    console.log("Öppnar isRecipe")
+    if (typeof possibleRecipe === "object" || possibleRecipe !== null) {
+        const assertedRecipe = possibleRecipe as Recipe
+        return typeof assertedRecipe.id === "number" && typeof assertedRecipe.instructions === "string" &&
+            typeof assertedRecipe.name === "string" && typeof assertedRecipe.servings === "number" &&
+            (assertedRecipe.unit === "imperial" || assertedRecipe.unit === "metric")
+    } else if (possibleRecipe === undefined){
+        return true;
+    } else {
+       return false; 
+    }
+    
+}
 //
 function retriveCookbook(filename: string) : object  {
     const possibleCookbook = fs.readFileSync(filename, 'utf-8')
@@ -87,19 +111,11 @@ function retriveCookbook(filename: string) : object  {
 }
 
 function newFunction() {
-    const possibleCookbook : object = retriveCookbook("italian.json")
-    saveCookbook(myBook)
-    retriveCookbook("cookbookShelf/italian.json")
-    
-    
+    // const possibleCookbook : object = retriveCookbook("italian.json")
+    // saveCookbook(myBook)
+    const obj = retriveCookbook("cookbookShelf/italian.json")
+    if (isCookbook(obj)) {
+        const cookbook = obj as Cookbook
+    } else {console.log("Error when loading cookbook.")}    
 }
-
-
-// fs.readFile('italian.txt', 'utf8', (err, data) => {
-//     if (err) {
-//         console.error(err);
-//         return;
-//     }
-//     console.log(data);
-
-// });
+newFunction()
