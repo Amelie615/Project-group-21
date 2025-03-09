@@ -1,4 +1,4 @@
-import { getRandomArbitrary, changeUnits } from "./lib/utilities";
+import { getRandomArbitrary, changeUnits, round } from "./lib/utilities";
 import { CookbookKeys, Cookbook} from "./main";
 import { pair, head , tail} from "./lib/list";
 import { Recipe, viewRecipe } from "./lib/recipe";
@@ -27,11 +27,11 @@ const cookbook: Cookbook = ph_empty(3, hash_id)
 testKeys.push(pair(testRecipe.name, testRecipe.id))
 ph_insert(cookbook, testRecipe.id, testRecipe)
 
-function changeServing(recipe: Recipe, table: Cookbook, newServings: number): void {  // The function has been changed for testing purposes
-    console.log("Recipe currently serves " + recipe.servings + " people")             // to use an additional argument instead of a prompt.
+function changeServing(recipe: Recipe, newServings: number): void {        // The function has been changed for testing purposes -
+    console.log("Recipe currently serves " + recipe.servings + " people")  // to use an additional argument instead of a prompt.
     for(let i = 0; i < recipe.measurements.length; i ++) {
         let currentIngredient: number = head(recipe.measurements[i])
-        recipe.measurements[i] = pair(Math.floor(currentIngredient/recipe.servings * newServings), tail(recipe.measurements[i]))
+        recipe.measurements[i] = pair(round(currentIngredient/recipe.servings * newServings, 1), tail(recipe.measurements[i]))
     }
     recipe.servings = newServings
     console.log("The new recipe: \n")
@@ -47,9 +47,22 @@ test("Produces a random number between 1000 and 9999 that isn't already in use a
     expect(testNumber).toBeLessThan(10000)
 });
 
-//ChangeServings
-test("Rescales the amounts in a recipe for 2 people to accommodate 5 people ", () => { //Uses the test version of the ChangeServings function seen above
-    
+//ChangeServings. Uses the test version of the ChangeServings function seen above.
+test("Rescales the amounts in a recipe for 4 people to accommodate 5 people ", () => { 
+    changeServing(testRecipe, 5)                                                       
+    expect(testRecipe.servings).toStrictEqual(5)
+    expect(head(testRecipe.measurements[0])).toStrictEqual(round(400 / 4, 1) * 5)
+    expect(head(testRecipe.measurements[1])).toStrictEqual(round(2 / 4, 1) * 5)
+    expect(head(testRecipe.measurements[2])).toStrictEqual(round(300 / 4, 1) * 5)
+});
+
+test("Attempts to rescale a recipe with serving size set to 0 and encounters a failsafe.", () => { 
+    testRecipe.servings = 0
+    changeServing(testRecipe, 5)                                            
+    expect(testRecipe.servings).toStrictEqual(0)
+    expect(head(testRecipe.measurements[0])).toStrictEqual(round(400 / 4, 1) * 5)
+    expect(head(testRecipe.measurements[1])).toStrictEqual(round(2 / 4, 1) * 5)
+    expect(head(testRecipe.measurements[2])).toStrictEqual(round(300 / 4, 1) * 5)
 });
 
 // removeIngredients valid/unvalid cases
@@ -72,6 +85,6 @@ test("changes units from metric to imperial by using changeUnits function", () =
 // uses changeUnits to make sure all units are metric
 test("fixes mixed metric and imperial units", () => {
     changeUnits(testRecipe2, cookbook, "")
-    expect(testRecipe2.measurements[1][1]).toStrictEqual!("cups")
+    expect(testRecipe2.measurements[1][1]).toStrictEqual!("mL")
     expect(testRecipe2.unit).toStrictEqual("metric")
 })

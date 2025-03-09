@@ -1,4 +1,4 @@
-import { Cookbook } from "./main";
+import { Cookbook, CookbookKeys } from "./main";
 import { ph_empty, hash_id, ph_insert, ph_lookup } from "./lib/hashtables";
 import { Recipe, createRecipe, Measurements } from "./lib/recipe";
 import { Pair } from "./lib/list";
@@ -46,25 +46,23 @@ import { validAnswer } from "./lib/utilities";
 
 
 
-function saveCookbook(cookbook : Cookbook) : void {
+function saveCookbook(cookbook : Cookbook, keysToHashed : CookbookKeys) : void {
     const cookbookName : string = validAnswer("Name your cookbook: >", "", []).toLowerCase()
     if (fs.existsSync("cookbookShelf/" + cookbookName + '.json')) {
         if (validAnswer("A cookbook with the name " + cookbookName + " already exists, do you wish to overwrite it?", "opt", ["y", "n"]).toLowerCase() === "n") {
             console.log("Saving cancelled.")
         } else {
-            fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(cookbook))
+            const itemToSave = {book: cookbook, bookKeys: keysToHashed}
+            fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(itemToSave))
             console.log("Overwritten succesfully. Save completed.")
         }
     } else {
-        fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(cookbook))
+        const itemToSave = {book: cookbook, bookKeys: keysToHashed}
+        fs.writeFileSync("cookbookShelf/" + cookbookName + ".json", JSON.stringify(itemToSave))
         console.log("Save completed.")
     }
 }
 
-//Typeguards
-
-
-//Funkar
 function isKeys(obj : unknown): obj is Array <number | null | undefined> { //Verkar fungera
     //console.log("Öppnar isKeys")
     if (Array.isArray(obj)) {
@@ -109,9 +107,16 @@ function isId(obj: unknown): obj is number | null {
 }
 
 
-function retriveCookbook(cookbookName: string) : object  {
-    const possibleCookbook = fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8')
-    return JSON.parse(possibleCookbook)
+function retriveCookbook(cookbookName: string) : object | null {
+    try {
+        fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8')
+    } 
+    catch (error) {
+        console.log("The cookbook could not be found")
+        return null;
+    }
+    const obj = fs.readFileSync("cookbookShelf/" + cookbookName + ".json", 'utf-8')
+    return JSON.parse(obj)
 }
 
 function isCookbook(possibleCookbook : unknown): possibleCookbook is Cookbook {
@@ -132,21 +137,36 @@ function isCookbook(possibleCookbook : unknown): possibleCookbook is Cookbook {
         return false} 
 }
 
-function newFunction() {
-    function createCookbooktest() {
-        const keysToHashed : Array<Pair<string, number>>= []
-        const myBook : Cookbook = ph_empty(3, hash_id);
-        createRecipe(myBook, keysToHashed)
-        createRecipe(myBook, keysToHashed)
-        return myBook
-    }
+export function loadCookbook() : {cookbook: Cookbook, keysToBook: CookbookKeys} | null  {
+    // function createCookbooktest() {
+    //     const keysToHashed : Array<Pair<string, number>>= []
+    //     const myBook : Cookbook = ph_empty(3, hash_id);
+    //     createRecipe(myBook, keysToHashed)
+    //     createRecipe(myBook, keysToHashed)
+    //     return myBook
+    // }
     //const obj = retriveCookbook("cookbookShelf/italian.json")
     // const cookbook = createCookbooktest()
     // saveCookbook(cookbook)
-    const obj = retriveCookbook("japanese")
-    if (isCookbook(obj)) {
-        const cookbook : Cookbook = obj as Cookbook
-        return cookbook
-    } else {console.log("Error when loading cookbook.")}}
+    let notFound : boolean = true
+    while (notFound) {
+        const obj : object | null= retriveCookbook(validAnswer("What name does your desired cookbook have?", "", []))
+        if (obj === null) {
+            if (validAnswer("Try again? (y/n)", "opt", ["y", "n"]).toLowerCase() === "n") {
+                return null
+            }
+        } else { ///fortsätt jobba här med det nya recordet
+            const savedItem = obj as {cookbook: object, keysToCookbook: CookbookKeys}
+            if (isCookbook(savedItem.cookbook) && Array.isArray(savedItem.keysToCookbook)) { //kan utveckla array.isarray så d faktiskt funkar
+                const cookbookNKeys : Cookbook = {cookbook: savedItem.cookbook as Cookbook
+                return cookbook
+            } else {console.log("Error when loading cookbook.")
+                return null
+            }
+        }
+         
+    } return null
+}
 
-console.log(newFunction())
+console.log(loadCookbook())
+

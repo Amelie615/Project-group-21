@@ -6,8 +6,15 @@ import { ProbingHashtable } from "./hashtables";
 import { Cookbook, CookbookKeys } from "../main";
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
-export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt", "pt", "liters", "deciliters", "deciliter", "milliliters", "milliliter", "gram", "kilogram", "liter", "gal", "gallons"] // FIXA SYSTEM
-export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups", "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt", "pt", "liters", "deciliters", "deciliter", "milliliters", "milliliter", "gram", "kilogram", "liter", "gal", "gallons"] // FIXA SYSTEM
+export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups",
+                                   "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt",
+                                   "pt", "liters", "deciliters", "deciliter", "milliliters",
+                                   "milliliter", "gram", "kilogram", "liter", "gal", "gallons"]
+                                   
+export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups",
+                                          "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt",
+                                          "pt", "liters", "deciliters", "deciliter", "milliliters",
+                                          "milliliter", "gram", "kilogram", "liter", "gal", "gallons"]
 
 
 /**
@@ -42,13 +49,22 @@ export function getRandomArbitrary(min : number, max : number, keys : Array<Pair
     }
     return id
 }
-
+/**
+ * Rounds the value number with a precistion amount of deimals
+ * @param {number} value the current recipe
+ * @param {number} precision the cookbook hashtable
+ * @returns a rounded number with precision amount of decimals
+ */
+export function round(value: number, precision: number): number {
+    var multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+}
 
 /**
  * changes units on ingredients
  * @param {Recipe} recipe the current recipe
  * @param {Cookbook} cookbook the cookbook hashtable
- * @param {string} flag a flag that indicates how the units should be handled
+ * @param {string} flag a flag that indicates how the units should be handled (either "" or "switchUnit")
  */
 export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): void { 
     let currentUnit: Array<BestKind | undefined> = ["metric", "imperial"]
@@ -56,7 +72,7 @@ export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): 
     if (flag === "switchUnit") {
         indexunit = indexunit === 1? 0: 1
     } 
-    for (let i = 0; i < recipe.measurements.length; i++) { //För varje measurements
+    for (let i = 0; i < recipe.measurements.length; i++) { //For each measurement
         if (unitstring.indexOf(tail(recipe.measurements[i])) !== -1) {
             let stringIndex: number = unitstring.indexOf(tail(recipe.measurements[i]))
             let newUnit: Unit = units[stringIndex]
@@ -70,6 +86,9 @@ export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): 
 
 /**
  * checks if an input is valid
+ * @example validAnswer("choose name: >", "", [])
+ * user input = Kanelbullar
+ * returns "Kanelbullar"
  * @param {string} usedPrompt the chosen prompt for the input
  * @param {string} flag indicates what type of answer is valid
  * @returns a non empty input

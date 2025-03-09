@@ -152,6 +152,8 @@ function editIngredients(recipe, cookbook) {
         }
     }
 }
+function createCookbook(size) {
+}
 /**
  * Main function where you can open/quit
  * initializes cookbook
@@ -161,12 +163,19 @@ function main() {
     var keysToHashed = []; //pair(name, id)
     var done = true;
     while (done) {
-        var test_1 = (0, utilities_1.questionnaire)(["Open", "Quit"]);
+        var test_1 = (0, utilities_1.questionnaire)(["Load", "Create new Cookbook", "Quit"]);
         switch (test_1) {
             case (1):
-                cookbook(hashedTable, keysToHashed); //Använder inte tagen just nu så bara placeholder
+                createCookbook((0, utilities_1.validAnswer)("How many recipes should your cookbook fit?"));
+                //cookbook(hashedTable, keysToHashed) //Använder inte tagen just nu så bara placeholder
                 break;
             case (2):
+                loadCookbook();
+                break;
+            case (3):
+                saveCookbook();
+                break;
+            case (4):
                 done = false;
             default: console.log("default");
         }

@@ -9,13 +9,82 @@ import { Cookbook, CookbookKeys } from "../main";
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
+ // DATA DEFINITIONS
 
+ // Imported type Unit and BestKind
+
+/**
+ * A {Measurements} is and array where each element is a pair(number, string | Unit)
+ * the string | Unit is a unit for the number (example: pair(1,"dl"))
+ * the string doesn't have to be a valid unit (example: pair(1, "slice"))
+ * invariants:
+ *      The first element in the pair is the number
+ *      and the second is a string or Unit
+ */
+
+/**
+ * A {Ingredients} is and array of strings
+ * a string is a name for a recipe
+ */
+
+// DATA TYPE EXAMPLES
+// your valid, invalid and borderline examples here
+
+/**
+ * A {Recipe} is a record {name: name of recipe,
+ *                         id: the recipe id (number between 1000 and 9999),
+ *                         ingredients: an array of strings where a string is an ingredient,
+ *                         measurements: an array [pair(number,string | Unit)] where each pair is the amount of an ingredient,
+ *                         servings: a number,
+ *                         instructions: a string of instructions,
+ *                         unit: "metric" or "imperial"}
+ * Invariants:
+ *      Ingredients and their measurements have the same index
+ *      unit can only be "metric" or "imperial"
+ */
+
+
+// DATA TYPE EXAMPLES
+
+/** Valid:
+ * const myRecipe = {name: Kanelbullar,
+ *                   id: 1234,
+ *                   ingredients: ["socker", "kanel", "mjöl", "smör", "ägg"],
+ *                   measurements: [pair(2,"dl"), pair(5, "g"), pair(3, "dl"), pair(200, "g"), pair(2, "st")],
+ *                   servings: 8,
+ *                   instructions: "baka bullar",
+ *                   unit: "metric"}
+ */
+        
+        
+/** Invalid
+ * Wrong order of keys:
+ * const myRecipe = {measurements: [pair(2,"dl"), pair(5, "g"), pair(3, "dl"), pair(200, "g"), pair(2, "st")],
+ *                   id: 1234,
+ *                   ingredients: ["socker", "kanel", "mjöl", "smör", "ägg"],
+ *                   name: "Kanelbullar",
+ *                   servings: 8,
+ *                   instructions: "baka bullar",
+ *                   unit: "metric"}
+ */ 
+
+ 
+/** Borderline
+ * empty ingredients and measurements:
+ * const myRecipe = {name: Kanelbullar,
+ *                   id: 1234,
+ *                   ingredients: [],
+ *                   measurements: [],
+ *                   servings: 8,
+ *                   instructions: "baka bullar",
+ *                   unit: "metric"}
+ */
 
 export type Recipe = {
     name: string,
     id: number,
     ingredients: Ingredients,
-    measurements: Measurements, //Array<Pair<Number, String>>
+    measurements: Measurements, 
     servings: number,
     instructions: string,
     unit: BestKind | undefined
@@ -26,6 +95,14 @@ export type Ingredients = Array<string>
 
 /**
  * initializes a new recipe
+ * @example initializeRecipe(keys)
+ * returns {name: "Kanelbulle",
+ *          id: 1234,
+ *          servings: 4,
+ *          instructions: "",
+ *          ingredients: [],
+ *          measurements: [],
+ *          unit: "metric"}
  * @param {CookbookKeys} keys the name and id for all recipes in cookbook
  * @returns a recipe
  */
@@ -45,7 +122,7 @@ export function initializeRecipe(keys: CookbookKeys): Recipe {
 
 
 /**
- * creates a new recipe
+ * creates a new recipe and adds it to cookbook hashtable
  * @param {Cookbook} cookbook the cookbook hashtable
  * @param {CookbookKeys} keys the name and id for all recipes in cookbook
  */
@@ -90,7 +167,17 @@ export function viewRecipe(recipe : Recipe): void {
 
 
 /**
- * search for a recipe
+ * search for a recipe in a cookbook
+ * if there are multiple found recipes the function will print out a list of them and let the user choose a recipe
+ * @example searchRecipe(keys, cookbook)
+ * user input for userSearch = "kanelbullar"
+ * returns {name: "Kanelbulle",
+ *          id: 1234,
+ *          servings: 4,
+ *          instructions: "",
+ *          ingredients: [],
+ *          measurements: [],
+ *          unit: "metric"}
  * @param {CookbookKeys} keys the name and id for all recipes in cookbook
  * @param {Cookbook} cookbook the cookbook hashtable
  * @returns {Recipe | boolean} the recipes found or false if no recipe found
@@ -98,7 +185,7 @@ export function viewRecipe(recipe : Recipe): void {
 export function searchRecipe(keys: CookbookKeys, cookbook: Cookbook): Recipe |  boolean {  
     const userSearch: string = validAnswer("Search >", "", []).toLowerCase()                              
     const searchResult: Array<string> = []
-    keys.forEach(element => {       //finns det någon match? (för sökningen) -> lägg till i searchREsult
+    keys.forEach(element => {       //Is there a match? (for the search) -> add to searchResult
         const name : string = head(element)
         if (name.search(userSearch) !== -1 ) {
             searchResult.push(name)
@@ -111,9 +198,9 @@ export function searchRecipe(keys: CookbookKeys, cookbook: Cookbook): Recipe |  
     }
     const chosenRecipeName = searchResult[questionnaire(searchResult)- 1]
    
-    for(let i = 0; i < keys.length; i++) { //titta på deet här
-        console.log(keys, chosenRecipeName)
-        if(head(keys[i]) === chosenRecipeName) { //
+    for(let i = 0; i < keys.length; i++) {
+        console.log(keys, chosenRecipeName) // kanske ta bort?
+        if(head(keys[i]) === chosenRecipeName) {
             const recipeSearch : Recipe | undefined = ph_lookup(cookbook, tail(keys[i]))
             recipeSearch === undefined ? userChoice = false : userChoice = recipeSearch
         }

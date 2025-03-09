@@ -5,32 +5,50 @@ import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredient
 import {questionnaire, changeUnits, units, validAnswer, line} from "./lib/utilities";
 import {convert, Unit} from 'convert';
 import {changeServing, removeIngredient, changeIngredients, addIngredient, viewIngredients} from "../Project-group-21/lib/ingredients"
+import { loadCookbook } from "./filemanagment";
 
-const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
+// DATA DEFINITIONS
+
+/**
+ * A {Cookbook} is a probing hashtable.
+ * The keys for the hashtable consist of numbers between 1000 and 9999
+ * the values in the hashtable are recipes
+ *      The NIN has the following format: "YYYYMMDD1111".
+ */
+
+/**
+ * A {CookbookKeys} is and array with pairs of strings and numbers
+ * a
+ * invariants:
+ *      Each pair must consist of corresponding recipe names and ids
+ */
+
 
 export type Cookbook = ProbingHashtable<number, Recipe>
 export type CookbookKeys = Array<Pair<string, number>>
+
+const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 /**
  * Menu for choosing what to do in cookbook
  * @param {Cookbook} book the cookbook hashtable
  * @param {CookbookKeys} keys id and name for every recipe
  */
-function cookbook(book: Cookbook, keys: CookbookKeys): void {
+function cookbookMenu(cookbook: Cookbook, keys: CookbookKeys): void {
     let done: boolean = true
     while (done) {
         line()
         console.log("What do you want to do?")
         switch(questionnaire(["Create recipe", "Search recipe", "Close cookbook"])) {
             case(1):
-                createRecipe(book, keys)
+                createRecipe(cookbook, keys)
                 break;
             case(2):
-                const search: Recipe | boolean = searchRecipe(keys, book)
+                const search: Recipe | boolean = searchRecipe(keys, cookbook)
                 if (typeof search === "boolean") {
                     console.log("Recipe not found.")
                 } else {
-                    recipeMenu(search, book)
+                    recipeMenu(search, cookbook)
                 }
                 break;
             case(3): 
@@ -109,7 +127,7 @@ function ingredientsMenu(recipe: Recipe, cookbook: Cookbook) {  // working name
         console.log("What do you want to do?")
         switch(questionnaire(["Change serving amount", "Change units", "Edit ingredients", "Return"])) {
             case(1):
-                changeServing(recipe, cookbook) //funkar
+                changeServing(recipe) //funkar
                 break
             case(2):
                 changeUnits(recipe, cookbook, "switchUnit") //funkar inte
@@ -161,23 +179,37 @@ function editIngredients(recipe: Recipe, cookbook: Cookbook) {
     }
 }
 
+function createCookbook(size: number) : Cookbook {
+    const emptyCookbook : Cookbook = ph_empty(size, hash_id)
+    return emptyCookbook
+}
+
 
 /**
  * Main function where you can open/quit
  * initializes cookbook
  */
 function main(): void {
-    const hashedTable: Cookbook = ph_empty(3, hash_id)
+    //const hashedTable: Cookbook = ph_empty(3, hash_id)
     let keysToHashed : Array<Pair<string, number>> = [] //pair(name, id)
     let done: boolean = true
     while (done) {  
-        const test = questionnaire(["Open", "Quit"])
+        const test = questionnaire(["Load", "Create new Cookbook", "Quit"])
         switch(test) {
             case(1): 
-                cookbook(hashedTable, keysToHashed) //Använder inte tagen just nu så bara placeholder
+                const newCookbook = createCookbook(Number(validAnswer("How many recipes should your cookbook fit? (max. 250)", "num", [])))
+                cookbookMenu(newCookbook, keysToHashed)
                 break
-            
             case(2):
+                const loadedCookbook : Cookbook | null = loadCookbook()
+                if (loadedCookbook !== null) {
+                    cookbookMenu(loadedCookbook, keysToHashed)
+                }
+                break
+            case(3):
+                saveCookbook()
+                break
+            case(4):
                 done = false;
             default: console.log("default")
         }

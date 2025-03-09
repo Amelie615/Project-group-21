@@ -123,7 +123,7 @@ function isCookbook(possibleCookbook) {
         return false;
     }
 }
-function newFunction() {
+function loadCookbook() {
     function createCookbooktest() {
         var keysToHashed = [];
         var myBook = (0, hashtables_1.ph_empty)(3, hashtables_1.hash_id);
@@ -141,6 +141,7 @@ function newFunction() {
     }
     else {
         console.log("Error when loading cookbook.");
+        return false;
     }
 }
-console.log(newFunction());
+console.log(loadCookbook());
