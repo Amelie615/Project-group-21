@@ -92,7 +92,7 @@ function isCookbookValues(obj : unknown) : obj is Array<Recipe | undefined> {
     console.log("Öppnar isCookbookValues")
     if (Array.isArray(obj) && obj !== null) {
         const values = obj as unknown[]
-        values.every(item => isRecipe(item) || typeof item === undefined)
+        return values.every(item => isRecipe(item) || typeof item === undefined)
     } else {console.log("cookbook values returnar false")
         return false}
 }
