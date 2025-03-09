@@ -67,9 +67,16 @@ function isCookbook(possibleCookbook : unknown): possibleCookbook is Cookbook {
     if (typeof possibleCookbook === "object" || possibleCookbook !== null) {
         const assertedCookbook = possibleCookbook as Cookbook
         console.log("asserts cookbook")
-        return isKeys(assertedCookbook.keys) && isCookbookValues(assertedCookbook.values) && typeof assertedCookbook.entries === "number"
+        const test1 =isKeys(assertedCookbook.keys)
+        console.log(assertedCookbook.keys)
+        const test2 = isCookbookValues(assertedCookbook.values)
+        const test3 = typeof assertedCookbook.entries === "number"
+        console.log(test1 , "iskeys resultat:")
+        console.log(test2, "isCookbookValue resultat: ")
+        console.log(test3, "entries type test: ")
+        return test1 && test2 && test3
 
-        
+
     } else {
         console.log("isCookbook hamnar i else")
         return false}
@@ -78,7 +85,7 @@ function isCookbook(possibleCookbook : unknown): possibleCookbook is Cookbook {
 
 function isKeys(possibleKeys : unknown): possibleKeys is number | null | undefined {
     console.log("Öppnar isKeys")
-    return typeof possibleKeys === "number" || possibleKeys === "null" || possibleKeys === "undefined";
+    return (typeof possibleKeys === "number" || possibleKeys === null || possibleKeys === undefined) 
 }
 
 function isCookbookValues(obj : unknown) : obj is Array<Recipe | undefined> {

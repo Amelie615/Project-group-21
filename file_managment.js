@@ -58,7 +58,14 @@ function isCookbook(possibleCookbook) {
     if (typeof possibleCookbook === "object" || possibleCookbook !== null) {
         var assertedCookbook = possibleCookbook;
         console.log("asserts cookbook");
-        return isKeys(assertedCookbook.keys) && isCookbookValues(assertedCookbook.values) && typeof assertedCookbook.entries === "number";
+        var test1 = isKeys(assertedCookbook.keys);
+        console.log(assertedCookbook.keys);
+        var test2 = isCookbookValues(assertedCookbook.values);
+        var test3 = typeof assertedCookbook.entries === "number";
+        console.log(test1, "iskeys resultat:");
+        console.log(test2, "isCookbookValue resultat: ");
+        console.log(test3, "entries type test: ");
+        return test1 && test2 && test3;
     }
     else {
         console.log("isCookbook hamnar i else");
@@ -67,7 +74,7 @@ function isCookbook(possibleCookbook) {
 }
 function isKeys(possibleKeys) {
     console.log("Öppnar isKeys");
-    return typeof possibleKeys === "number" || possibleKeys === "null" || possibleKeys === "undefined";
+    return (typeof possibleKeys === "number" || possibleKeys === null || possibleKeys === undefined);
 }
 function isCookbookValues(obj) {
     console.log("Öppnar isCookbookValues");
