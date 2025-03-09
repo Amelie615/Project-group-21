@@ -215,6 +215,7 @@ function main(): void {
                 break
             case(3):
                 done = false;
+                break
             default: console.log("default")     //bör inte existera?
         }
     }

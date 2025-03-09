@@ -184,6 +184,7 @@ function main() {
                 break;
             case (3):
                 done = false;
+                break;
             default: console.log("default"); //bör inte existera?
         }
     }
