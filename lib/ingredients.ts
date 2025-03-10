@@ -14,7 +14,6 @@ const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
  * @param {string} name name of the new ingredient
  * @param {Cookbook} cookbook the cookbook hashtable
  */
-
 export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook): void {
     const inputprompt: string = "Enter amount of " 
                                  + name 
@@ -23,6 +22,7 @@ export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook)
                                                   "", 
                                                   []).toLowerCase() 
     const integersFromMeasurements = inputMeasurements.match(/(\d+)/) 
+
     if (integersFromMeasurements === null) {
         console.log("invalid input")
         makeIngredient(recipe,
@@ -31,7 +31,8 @@ export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook)
         return
     } else {
         const validints: number = parseInt(integersFromMeasurements[1])
-        const lettersFromMeasurements: string = inputMeasurements.replace(/[\d\s]+/g,'')
+        const lettersFromMeasurements: string = inputMeasurements
+            .replace(/[\d\s]+/g,'')
         if (lettersFromMeasurements === "") {
             console.log("invalid input")
             makeIngredient(recipe, name, cookbook)
@@ -106,7 +107,10 @@ export function addIngredient(recipe: Recipe, cookbook: Cookbook): void {
     let done = true
     while(done === true) {
         makeIngredient(recipe, 
-                       validAnswer("Ingredient name > ", "", []), cookbook)
+                       validAnswer("Ingredient name > ",
+                                   "", 
+                                   []), 
+                       cookbook)
         if(validAnswer("Do you want to add another ingredient? y/n > ",
                        "opt", 
                        ["y", "n"]).toLowerCase() === "n") {
@@ -127,7 +131,8 @@ export function changeIngredients(recipe: Recipe, cookbook: Cookbook): void {
         let ingredientSearch: string = validAnswer("What ingredient do you want to change? > ",
                                                     "",
                                                     [])
-        let indexToChange: number = recipe.ingredients
+        let indexToChange: number = recipe
+            .ingredients
             .indexOf(ingredientSearch)
         if(indexToChange !== -1) {
             console.log("Current ingredient:\n" 
@@ -155,6 +160,10 @@ export function changeIngredients(recipe: Recipe, cookbook: Cookbook): void {
     }
 }
 
+/**
+ * Prints out ingredients in terminal
+ * @param {Recipe} recipe the current recipe
+ */
 export function viewIngredients(recipe: Recipe): void {
     for (let i = 0; i < recipe.ingredients.length; i++ ) {
         console.log(recipe.ingredients[i] 

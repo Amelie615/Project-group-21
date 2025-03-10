@@ -1,7 +1,7 @@
 import {pair, head, tail, Pair,} from './list';
 import {ph_insert, ph_lookup} from "./hashtables";
 import * as PromptSync from "prompt-sync";
-import {questionnaire, getRandomArbitrary, units, changeUnits, validAnswer, line } from './utilities';
+import {questionnaire, IDGenerator, units, changeUnits, validAnswer, line } from './utilities';
 import {convert, Unit, BestKind} from 'convert';
 import { makeIngredient, viewIngredients } from './ingredients';
 import { ProbingHashtable } from './hashtables';
@@ -26,9 +26,6 @@ const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
  * A {Ingredients} is and array of strings
  * a string is a name for a recipe
  */
-
-// DATA TYPE EXAMPLES
-// your valid, invalid and borderline examples here
 
 /**
  * A {Recipe} is a record {name: name of recipe,
@@ -80,6 +77,9 @@ const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
  *                   unit: "metric"}
  */
 
+
+export type Measurements = Array<Pair<number, Unit | string>>
+export type Ingredients = Array<string> 
 export type Recipe = {
     name: string,
     id: number,
@@ -89,8 +89,7 @@ export type Recipe = {
     instructions: string,
     unit: BestKind | undefined
 } 
-export type Measurements = Array<Pair<number, Unit | string>>
-export type Ingredients = Array<string> 
+
 
 
 /**
@@ -108,9 +107,13 @@ export type Ingredients = Array<string>
  */
 export function initializeRecipe(keys: CookbookKeys): Recipe {
     const newRecipe: Recipe = {
-        name: validAnswer("Name: > ", "", []).toLowerCase(),
-        id: getRandomArbitrary(1000, 9999, keys),                     
-        servings: parseInt(validAnswer("Estimated servings: > ", "num", [])),
+        name: validAnswer("Name: > ", 
+                          "", 
+                          []).toLowerCase(),
+        id: IDGenerator(1000, 9999, keys),                     
+        servings: parseInt(validAnswer("Estimated servings: > ", 
+                                       "num", 
+                                        [])),
         instructions: "",
         ingredients: [],
         measurements: [],
@@ -128,25 +131,37 @@ export function initializeRecipe(keys: CookbookKeys): Recipe {
  */
 export function createRecipe(cookbook: Cookbook, keys: CookbookKeys): void {
     line()
-    console.log("Enter the following information for your recipe \n(It is possible to change this afterwards, don't worry.)")
+    console.log("Enter the following information for your recipe.")
+    console.log("(It is possible to change this afterwards, don't worry.)")
     const newRecipe: Recipe = initializeRecipe(keys)
     let done : Boolean = true;
     while (done === true) {
-        const ingredient: string = validAnswer("Name an ingredient > ", "", [])
-        makeIngredient(newRecipe, ingredient, cookbook);
-        if(validAnswer("Do you want to add another ingredient? y/n > ", "opt", ["n","y"]).toLowerCase() === "n") {
+        const ingredient: string = validAnswer("Name an ingredient > ", 
+                                               "", 
+                                               [])
+        makeIngredient(newRecipe, 
+                       ingredient, 
+                       cookbook);
+        if(validAnswer("Do you want to add another ingredient? y/n > ", 
+                       "opt", 
+                       ["n","y"]).toLowerCase() === "n") {
             done = false
         }
     } 
-    newRecipe.instructions = validAnswer("instructions: > ", "", [])
+    newRecipe.instructions = validAnswer("instructions: > ", 
+                                         "", 
+                                         [])
     viewRecipe(newRecipe)
-    keys.push(pair(newRecipe.name, newRecipe.id))
-    ph_insert(cookbook, newRecipe.id, newRecipe)
+    keys.push(pair(newRecipe.name, 
+                   newRecipe.id))
+    ph_insert(cookbook, 
+              newRecipe.id, 
+              newRecipe)
 }
 
 
 /**
- * prints out recipe
+ * prints out recipe in terminal
  * @param {Recipe} recipe the chosen recipe
  */
 export function viewRecipe(recipe : Recipe): void {
@@ -158,7 +173,8 @@ export function viewRecipe(recipe : Recipe): void {
     line()
     console.log("ingredients: \n")
     viewIngredients(recipe)
-    console.log("servings: " + recipe.servings)
+    console.log("servings: " 
+                + recipe.servings)
     line()
     console.log("instructions: \n")
     console.log(recipe.instructions + "\n")
@@ -183,9 +199,11 @@ export function viewRecipe(recipe : Recipe): void {
  * @returns {Recipe | boolean} the recipes found or false if no recipe found
  */
 export function searchRecipe(keys: CookbookKeys, cookbook: Cookbook): Recipe |  boolean {  
-    const userSearch: string = validAnswer("Search >", "", []).toLowerCase()                              
+    const userSearch: string = validAnswer("Search > ", 
+                                           "", 
+                                           []).toLowerCase()                              
     const searchResult: Array<string> = []
-    keys.forEach(element => {       //Is there a match? (for the search) -> add to searchResult
+    keys.forEach(element => {       //(If search matches) -> add to searchResult
         const name : string = head(element)
         if (name.search(userSearch) !== -1 ) {
             searchResult.push(name)
@@ -197,13 +215,15 @@ export function searchRecipe(keys: CookbookKeys, cookbook: Cookbook): Recipe |  
         userChoice = false
     }
     const chosenRecipeName = searchResult[questionnaire(searchResult)- 1]
-   
+
     for(let i = 0; i < keys.length; i++) {
-        console.log(keys, chosenRecipeName) // kanske ta bort?
         if(head(keys[i]) === chosenRecipeName) {
-            const recipeSearch : Recipe | undefined = ph_lookup(cookbook, tail(keys[i]))
-            recipeSearch === undefined ? userChoice = false : userChoice = recipeSearch
+            const recipeSearch : Recipe | undefined = ph_lookup(cookbook, 
+                                                                tail(keys[i]))
+            recipeSearch === undefined 
+                             ? userChoice = false 
+                             : userChoice = recipeSearch
         }
     }
     return userChoice
-}
+}          
