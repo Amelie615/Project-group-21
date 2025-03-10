@@ -147,23 +147,23 @@ function editIngredients(recipe, cookbook) {
     while (active) {
         (0, utilities_1.line)();
         console.log("What do you want to do?");
-        switch ((0, utilities_1.questionnaire)(["add ingredient",
-            "remove ingredient",
-            "edit ingredient",
+        switch ((0, utilities_1.questionnaire)(["Add ingredient",
+            "Remove ingredient",
+            "Edit ingredient",
             "Return"])) {
             case (1):
-                console.log("current ingredients:");
+                console.log("Current ingredients:");
                 (0, ingredients_1.viewIngredients)(recipe);
                 (0, utilities_1.line)();
                 (0, ingredients_1.addIngredient)(recipe, cookbook);
                 break;
             case (2):
-                console.log("current ingredients:");
+                console.log("Current ingredients:");
                 (0, ingredients_1.viewIngredients)(recipe);
                 (0, ingredients_1.removeIngredient)(recipe, (0, utilities_1.validAnswer)("What ingredient do you want to remove? > ", "", []));
                 break;
             case (3):
-                console.log("current ingredients:");
+                console.log("Current ingredients:");
                 (0, ingredients_1.viewIngredients)(recipe);
                 (0, ingredients_1.changeIngredients)(recipe, cookbook);
                 break;
@@ -177,7 +177,7 @@ function editIngredients(recipe, cookbook) {
 /**
  * initializes a new cookbook
  * @param {number} size the size of the new hashtable
- * @returns an empty cookbook hashtable
+ * @returns {Cookbook} an empty cookbook hashtable
  */
 function createCookbook(size) {
     var emptyCookbook = (0, hashtables_1.ph_empty)(size, hashtables_1.hash_id);
@@ -200,10 +200,10 @@ function main() {
                 }
                 break;
             case (2):
-                var sizeOfCookbook = Number((0, utilities_1.validAnswer)("How many recipes should your cookbook fit? (max. 250) > ", "num", []));
+                var sizeOfCookbook = Number((0, utilities_1.validAnswer)("How many recipes should your cookbook fit? (max. 100) > ", "num", []));
                 (0, utilities_1.round)(sizeOfCookbook, 0);
-                sizeOfCookbook > 250
-                    ? sizeOfCookbook = 250
+                sizeOfCookbook > 100
+                    ? sizeOfCookbook = 100
                     : sizeOfCookbook < 1
                         ? sizeOfCookbook = 1
                         : sizeOfCookbook;

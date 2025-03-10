@@ -141,8 +141,8 @@ function isCookbook(obj) {
  * Retrieves data from a file in /cookbookShelf/ and translates it to a Cookbook
  * and their respective CookbookKeys, if applicable.
  * If the data has been changed enough to be untranslatable,
- * the function will instead log an erorr message and return undefined.
- * @returns an array containing the Cookbook and correlating
+ * the function will instead log an error message and return undefined.
+ * @returns {[Cookbook, CookbookKeys] | undefined} an array containing the Cookbook and correlating
  * CookbookKeys if found, undefined if not found or untranslatable.
  */
 function loadCookbook() {

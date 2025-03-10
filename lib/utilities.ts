@@ -6,12 +6,12 @@ import { ProbingHashtable } from "./hashtables";
 import { Cookbook, CookbookKeys } from "../main";
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
-export const units: Array<Unit> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups",
+export const units: Array<Unit> = ["ml", "mL", "L", "l", "g", "dl", "kg", "US fluid ounce", "cups",
                                    "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt",
                                    "pt", "liters", "deciliters", "deciliter", "milliliters",
                                    "milliliter", "gram", "kilogram", "liter", "gal", "gallons"]
                                    
-export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid ounce", "cups",
+export const unitstring: Array<string> = ["ml", "mL", "L",  "l", "g", "dl", "kg", "US fluid ounce", "cups",
                                           "pounds", "pound", "lb", "ounces", "ounce", "cup", "qt",
                                           "pt", "liters", "deciliters", "deciliter", "milliliters",
                                           "milliliter", "gram", "kilogram", "liter", "gal", "gallons"]
@@ -25,7 +25,7 @@ export const unitstring: Array<string> = ["ml", "l", "g", "dl", "kg", "US fluid 
  * 2 chokladbollar
  * and then return the user input as a number
  * @param {Array<string>} options the options to be printed
- * @returns the number for a specific option
+ * @returns {number} the number for a specific option
  */
 export function questionnaire(options: Array<string>) : number {
     line()
@@ -45,7 +45,7 @@ export function questionnaire(options: Array<string>) : number {
  * @param {number} min the minimun value for the number
  * @param {number} max the maximum value for the number
  * @param {CookbookKeys} keys the keys and names for the recipes in the cookbook
- * @returns a random number
+ * @returns {number} a random number
  */
 export function IDGenerator(min : number, max : number, keys : Array<Pair<string, number>>): number {
     let id: number = Math.floor(Math.random() * (max - min) 
@@ -65,11 +65,11 @@ export function IDGenerator(min : number, max : number, keys : Array<Pair<string
  * returns 2.5
  * @param {number} value the value to be rounded
  * @param {number} precision the amount of decimals
- * @returns a rounded number with precision amount of decimals
+ * @returns {number} a rounded number with precision amount of decimals
  */
 export function round(value: number, precision: number): number {
     const multiplier = Math.pow(10, 
-                                precision || 0);
+                                precision);
     return Math.round(value * multiplier) / multiplier;
 }
 
@@ -91,7 +91,7 @@ export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): 
                     : 1
     }
 
-    for (let i = 0; i < recipe.measurements.length; i++) { //For each measurement
+    for (let i = 0; i < recipe.measurements.length; i++) {
         if (unitstring.indexOf(tail(recipe.measurements[i])) !== -1) {
             let stringIndex: number = unitstring
                 .indexOf(tail(recipe.measurements[i]))
@@ -120,7 +120,7 @@ export function changeUnits(recipe : Recipe, cookbook: Cookbook, flag: string): 
  * @param {string} flag indicates what type of answer is valid 
  * ("" if all answer except empty are valid, "num" if a valid answer is a number, "opt" if the given options are valid answers)
  * @param {Array<K>} opt contains valid answers if the answers need to be specific
- * @returns a non empty input
+ * @returns {string} a valid answer
  */
 type K = number | string | undefined
 export function validAnswer(usedPrompt: string, flag: string, opt: Array<K>): string {
@@ -164,7 +164,7 @@ export function line(): void {
  * @example stringToUnit("st")
  * returns "st" (type string)
  * @param {string} unit the string to convert
- * @returns the corresponding unit to given string, or the string if no equivalent unit exists
+ * @returns {Unit | string} the corresponding unit to given string, or the string if no equivalent unit exists
  */
 export function stringToUnit (unit: string): Unit | string {
     let newUnit: Unit = "ml"

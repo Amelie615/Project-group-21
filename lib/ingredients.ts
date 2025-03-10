@@ -24,7 +24,7 @@ export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook)
     const integersFromMeasurements = inputMeasurements.match(/(\d+)/) 
 
     if (integersFromMeasurements === null) {
-        console.log("invalid input")
+        console.log("Invalid input")
         makeIngredient(recipe,
                        name, 
                        cookbook)
@@ -34,7 +34,7 @@ export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook)
         const lettersFromMeasurements: string = inputMeasurements
             .replace(/[\d\s]+/g,'')
         if (lettersFromMeasurements === "") {
-            console.log("invalid input")
+            console.log("Invalid input")
             makeIngredient(recipe, name, cookbook)
             return
         }
@@ -51,9 +51,9 @@ export function makeIngredient(recipe: Recipe, name: string, cookbook: Cookbook)
  * @param {Cookbook} cookbook the cookbook hashtable
  */
 export function changeServing(recipe: Recipe): void { 
-    if(recipe.servings === 0) {
+    if(recipe.servings < 1) {
         console.log("Recipe lacks reasonable serving amounts for scaling\n")
-    } else {
+    } else if(recipe.servings !== 0){
         console.log("Recipe currently serves " 
                     + recipe.servings 
                     + " people")

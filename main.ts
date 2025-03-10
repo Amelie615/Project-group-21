@@ -198,19 +198,19 @@ function editIngredients(recipe: Recipe, cookbook: Cookbook): void {
     while(active) {
         line()
         console.log("What do you want to do?")
-        switch(questionnaire(["add ingredient",
-                              "remove ingredient", 
-                              "edit ingredient", 
+        switch(questionnaire(["Add ingredient",
+                              "Remove ingredient", 
+                              "Edit ingredient", 
                               "Return"])) {
             case(1):
-                console.log("current ingredients:")
+                console.log("Current ingredients:")
                 viewIngredients(recipe)
                 line()
                 addIngredient(recipe, 
                               cookbook)
                 break
             case(2):
-                console.log("current ingredients:")
+                console.log("Current ingredients:")
                 viewIngredients(recipe)
                 removeIngredient(recipe, 
                                  validAnswer("What ingredient do you want to remove? > ", 
@@ -218,7 +218,7 @@ function editIngredients(recipe: Recipe, cookbook: Cookbook): void {
                                              []))
                 break
             case(3):
-                console.log("current ingredients:")
+                console.log("Current ingredients:")
                 viewIngredients(recipe)
                 changeIngredients(recipe, 
                                   cookbook)
@@ -235,7 +235,7 @@ function editIngredients(recipe: Recipe, cookbook: Cookbook): void {
 /**
  * initializes a new cookbook
  * @param {number} size the size of the new hashtable
- * @returns an empty cookbook hashtable
+ * @returns {Cookbook} an empty cookbook hashtable
  */
 function createCookbook(size: number) : Cookbook {
     const emptyCookbook : Cookbook = ph_empty(size, 
@@ -262,12 +262,12 @@ function main(): void {
                 }
                 break
             case(2):
-                let sizeOfCookbook = Number(validAnswer("How many recipes should your cookbook fit? (max. 250) > ",
+                let sizeOfCookbook = Number(validAnswer("How many recipes should your cookbook fit? (max. 100) > ",
                                               "num", 
                                               []))
                 round(sizeOfCookbook, 0)
-                sizeOfCookbook > 250 
-                               ? sizeOfCookbook = 250 
+                sizeOfCookbook > 100
+                               ? sizeOfCookbook = 100
                                : sizeOfCookbook < 1 
                                ? sizeOfCookbook = 1
                                : sizeOfCookbook

@@ -103,7 +103,7 @@ export type Recipe = {
  *          measurements: [],
  *          unit: "metric"}
  * @param {CookbookKeys} keys the name and id for all recipes in cookbook
- * @returns a recipe
+ * @returns {Recipe} a new recipe
  */
 export function initializeRecipe(keys: CookbookKeys): Recipe {
     const newRecipe: Recipe = {
@@ -161,22 +161,21 @@ export function createRecipe(cookbook: Cookbook, keys: CookbookKeys): void {
 
 
 /**
- * prints out recipe in terminal
+ * Prints out recipe in terminal
  * @param {Recipe} recipe the chosen recipe
  */
 export function viewRecipe(recipe : Recipe): void {
-    console.log(recipe)
     if (recipe === undefined) {console.log("error")}
     else {
     line()
     console.log(recipe.name)
     line()
-    console.log("ingredients: \n")
+    console.log("INGREDIENTS: \n")
     viewIngredients(recipe)
-    console.log("servings: " 
+    console.log("SERVINGS: " 
                 + recipe.servings)
     line()
-    console.log("instructions: \n")
+    console.log("INSTRUCTIONS: \n")
     console.log(recipe.instructions + "\n")
     }
 }

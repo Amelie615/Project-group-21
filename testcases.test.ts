@@ -1,4 +1,4 @@
-import { getRandomArbitrary, changeUnits, round } from "./lib/utilities";
+import { IDGenerator, changeUnits, round } from "./lib/utilities";
 import { CookbookKeys, Cookbook} from "./main";
 import { pair, head , tail} from "./lib/list";
 import { Recipe, viewRecipe } from "./lib/recipe";
@@ -27,21 +27,30 @@ const cookbook: Cookbook = ph_empty(3, hash_id)
 testKeys.push(pair(testRecipe.name, testRecipe.id))
 ph_insert(cookbook, testRecipe.id, testRecipe)
 
-function changeServing(recipe: Recipe, newServings: number): void {        // The function has been changed for testing purposes -
-    console.log("Recipe currently serves " + recipe.servings + " people")  // to use an additional argument instead of a prompt.
-    for(let i = 0; i < recipe.measurements.length; i ++) {
-        let currentIngredient: number = head(recipe.measurements[i])
-        recipe.measurements[i] = pair(round(currentIngredient/recipe.servings * newServings, 1), tail(recipe.measurements[i]))
+export function changeServing(recipe: Recipe, newServings: number): void { 
+    if(newServings < 1) {
+        console.log("Recipe lacks reasonable serving amounts for scaling\n")
+    } else if(recipe.servings > 0 || newServings > 0){
+        console.log("Recipe currently serves " 
+                    + recipe.servings 
+                    + " people")
+        for(let i = 0; i < recipe.measurements.length; i ++) {
+            let currentIngredient: number = head(recipe.measurements[i])
+            recipe.measurements[i] = pair(round(currentIngredient / recipe.servings * newServings,
+                                                2),
+                                          tail(recipe.measurements[i]))
+        }
+
+        recipe.servings = newServings
+        console.log("The new recipe: \n")
+        viewRecipe(recipe)
     }
-    recipe.servings = newServings
-    console.log("The new recipe: \n")
-    viewRecipe(recipe)
 }
 
 
 // GetRandomArbitrary
 test("Produces a random number between 1000 and 9999 that isn't already in use and checks it to be a number in said intervall.", () => {
-    const testNumber: number = getRandomArbitrary(1000, 9999, testKeys)
+    const testNumber: number = IDGenerator(1000, 9999, testKeys)
     expect(typeof testNumber).toStrictEqual("number")
     expect(testNumber).toBeGreaterThan(999)
     expect(testNumber).toBeLessThan(10000)
@@ -57,21 +66,20 @@ test("Rescales the amounts in a recipe for 4 people to accommodate 5 people ", (
 });
 
 test("Attempts to rescale a recipe with serving size set to 0 and encounters a failsafe.", () => { 
-    testRecipe.servings = 0
-    changeServing(testRecipe, 5)                                            
-    expect(testRecipe.servings).toStrictEqual(0)
+    changeServing(testRecipe, 0)                                            
+    expect(testRecipe.servings).toStrictEqual(5)
     expect(head(testRecipe.measurements[0])).toStrictEqual(round(400 / 4, 1) * 5)
     expect(head(testRecipe.measurements[1])).toStrictEqual(round(2 / 4, 1) * 5)
     expect(head(testRecipe.measurements[2])).toStrictEqual(round(300 / 4, 1) * 5)
 });
 
 // removeIngredients valid/unvalid cases
-test("Takes a test recipe and uses the removeINgredient function to remove one of the existing ingredients.", () => {
+test("Takes a test recipe and uses the removeIngredient function to remove one of the existing ingredients.", () => {
     removeIngredient(testRecipe, "socker")
     expect(testRecipe.ingredients.length).toStrictEqual(2)
 })
 
-test("Takes a test recipe and uses the removeINgredient function to try and remove an ingredient that doesn't exist.", () => {
+test("Takes a test recipe and uses the removeIngredient function to try and remove an ingredient that doesn't exist.", () => {
     removeIngredient(testRecipe, "jordgubbar")
     expect(testRecipe.ingredients).toStrictEqual(["cream cheese", "digestivekex"]) // Same as it was before
 })
