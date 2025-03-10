@@ -150,33 +150,40 @@ export function loadCookbook() : [Cookbook, CookbookKeys] | undefined  {
  * @param {CookbookKeys} keys - the keys and names for each recipe in the cookbook
  */
 export function saveCookbook(cookbook : Cookbook, keys : CookbookKeys) : void {
-    const cookbookName : string = validAnswer("Name your cookbook: > ", 
-                                              "", 
-                                              []).toLowerCase()
-    if (fs.existsSync("cookbookshelf/" 
-                      + cookbookName + 
-                      '.json')) {
-        if (validAnswer("A cookbook with the name " +
-                        cookbookName +
-                        " already exists, do you wish to overwrite it? > ",
-                        "opt",
-                        ["y", "n"]).toLowerCase() === "n") {
-            console.log("Saving cancelled.")
+    let notSaved : boolean = true;
+    
+    while (notSaved) {
+        const cookbookName : string = validAnswer("Name your cookbook: > ", 
+            "", 
+            []).toLowerCase()
+        if (fs.existsSync("cookbookshelf/" 
+                            + cookbookName + 
+                            '.json')) {
+            if (validAnswer("A cookbook with the name " +
+                            cookbookName +
+                            " already exists, do you wish to overwrite it? > ",
+                            "opt",
+                            ["y", "n"]).toLowerCase() === "n") {
+                console.log("Saving cancelled.")
+
+            } else {
+                cookbook.hash.toString()  //Functions are removed when stringified, in this case simply converting to a string solves the issue (pretty cool find/fix)
+                const itemToSave = {book: cookbook, bookKeys: keys}
+                fs.writeFileSync("cookbookshelf/" 
+                                    + cookbookName 
+                                    + ".json",
+                                    JSON.stringify(itemToSave))
+                console.log("Overwritten succesfully. Save completed.\n")
+                notSaved = false
+            }
         } else {
-            cookbook.hash.toString()  //Functions are removed when stringified, in this case simply converting to a string solves the issue (pretty cool find/fix)
             const itemToSave = {book: cookbook, bookKeys: keys}
             fs.writeFileSync("cookbookshelf/" 
                                 + cookbookName 
                                 + ".json",
-                              JSON.stringify(itemToSave))
-            console.log("Overwritten succesfully. Save completed.\n")
+                                JSON.stringify(itemToSave))
+            console.log("Save completed.")
+            notSaved = false
         }
-    } else {
-        const itemToSave = {book: cookbook, bookKeys: keys}
-        fs.writeFileSync("cookbookshelf/" 
-                            + cookbookName 
-                            + ".json",
-                          JSON.stringify(itemToSave))
-        console.log("Save completed.")
-    }
-}
+    }    
+}   

@@ -1,42 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveCookbook = saveCookbook;
 exports.loadCookbook = loadCookbook;
+exports.saveCookbook = saveCookbook;
 var hashtables_1 = require("./lib/hashtables");
 var fs = require("fs");
 var utilities_1 = require("./lib/utilities");
-/**
- * Saves a cookbook and correlating keys to the folder ./cookbookshelf/
- * @param {Recipe} cookbook - the cookbook to be saved
- * @param {CookbookKeys} keys - the keys and names for each recipe in the cookbook
- */
-function saveCookbook(cookbook, keys) {
-    var cookbookName = (0, utilities_1.validAnswer)("Name your cookbook: > ", "", []).toLowerCase();
-    if (fs.existsSync("cookbookShelf/"
-        + cookbookName +
-        '.json')) {
-        if ((0, utilities_1.validAnswer)("A cookbook with the name " +
-            cookbookName +
-            " already exists, do you wish to overwrite it? > ", "opt", ["y", "n"]).toLowerCase() === "n") {
-            console.log("Saving cancelled.");
-        }
-        else {
-            cookbook.hash.toString(); //Functions are removed when stringified, in this case simply converting to a string solves the issue (pretty cool find/fix)
-            var itemToSave = { book: cookbook, bookKeys: keys };
-            fs.writeFileSync("cookbookShelf/"
-                + cookbookName
-                + ".json", JSON.stringify(itemToSave));
-            console.log("Overwritten succesfully. Save completed.\n");
-        }
-    }
-    else {
-        var itemToSave = { book: cookbook, bookKeys: keys };
-        fs.writeFileSync("cookbookShelf/"
-            + cookbookName
-            + ".json", JSON.stringify(itemToSave));
-        console.log("Save completed.");
-    }
-}
 /**
  * Checks whether an object fits the type of keys in Cookbook
  * @param {unknown} obj - the object to examine
@@ -101,26 +69,6 @@ function isId(obj) {
         || typeof obj === null;
 }
 /**
- * Retrieves the content of a file as an object.
- * @param {string} cookbookName - filename of the file to load
- * @returns {object | undefined} Returns the content of the file if found, otherwise undefined.
- */
-function retriveCookbook(cookbookName) {
-    try {
-        fs.readFileSync("cookbookShelf/"
-            + cookbookName
-            + ".json", 'utf-8');
-    }
-    catch (error) {
-        console.log("The cookbook could not be found. ");
-        return;
-    }
-    var obj = fs.readFileSync("cookbookShelf/"
-        + cookbookName
-        + ".json", 'utf-8');
-    return JSON.parse(obj);
-}
-/**
  * Checks whether an object fits the type Cookbook.
  * @param {unknown} obj - the object to examine
  * @returns {boolean} Returns true if the object fits the type, false if not.
@@ -138,7 +86,27 @@ function isCookbook(obj) {
     }
 }
 /**
- * Retrieves data from a file in /cookbookShelf/ and translates it to a Cookbook
+ * Retrieves the content of a file as an object.
+ * @param {string} cookbookName - filename of the file to load
+ * @returns {object | undefined} Returns the content of the file if found, otherwise undefined.
+ */
+function retriveCookbook(cookbookName) {
+    try {
+        fs.readFileSync("cookbookshelf/"
+            + cookbookName
+            + ".json", 'utf-8');
+    }
+    catch (error) {
+        console.log("The cookbook could not be found. ");
+        return;
+    }
+    var obj = fs.readFileSync("cookbookshelf/"
+        + cookbookName
+        + ".json", 'utf-8');
+    return JSON.parse(obj);
+}
+/**
+ * Retrieves data from a file in /cookbookshelf/ and translates it to a Cookbook
  * and their respective CookbookKeys, if applicable.
  * If the data has been changed enough to be untranslatable,
  * the function will instead log an error message and return undefined.
@@ -176,4 +144,41 @@ function loadCookbook() {
         }
     }
     return;
+}
+/**
+ * Saves a cookbook and correlating keys to the folder ./cookbookshelf/
+ * @param {Recipe} cookbook - the cookbook to be saved
+ * @param {CookbookKeys} keys - the keys and names for each recipe in the cookbook
+ */
+function saveCookbook(cookbook, keys) {
+    var notSaved = true;
+    while (notSaved) {
+        var cookbookName = (0, utilities_1.validAnswer)("Name your cookbook: > ", "", []).toLowerCase();
+        if (fs.existsSync("cookbookshelf/"
+            + cookbookName +
+            '.json')) {
+            if ((0, utilities_1.validAnswer)("A cookbook with the name " +
+                cookbookName +
+                " already exists, do you wish to overwrite it? > ", "opt", ["y", "n"]).toLowerCase() === "n") {
+                console.log("Saving cancelled.");
+            }
+            else {
+                cookbook.hash.toString(); //Functions are removed when stringified, in this case simply converting to a string solves the issue (pretty cool find/fix)
+                var itemToSave = { book: cookbook, bookKeys: keys };
+                fs.writeFileSync("cookbookshelf/"
+                    + cookbookName
+                    + ".json", JSON.stringify(itemToSave));
+                console.log("Overwritten succesfully. Save completed.\n");
+                notSaved = false;
+            }
+        }
+        else {
+            var itemToSave = { book: cookbook, bookKeys: keys };
+            fs.writeFileSync("cookbookshelf/"
+                + cookbookName
+                + ".json", JSON.stringify(itemToSave));
+            console.log("Save completed.");
+            notSaved = false;
+        }
+    }
 }
