@@ -1,5 +1,5 @@
 import * as PromptSync from "prompt-sync";
-import { Pair } from './lib/list';
+import { Pair, tail, pair } from './lib/list';
 import { hash_id, ph_empty, type ProbingHashtable} from "./lib/hashtables";
 import {viewRecipe, createRecipe, searchRecipe, Recipe } from "../Project-group-21/lib/recipe";
 import {questionnaire, changeUnits, validAnswer, line, round} from "./lib/utilities";
@@ -66,7 +66,7 @@ function cookbookMenu(cookbook: Cookbook, keys: CookbookKeys): void {
                 if (typeof search === "boolean") {
                     console.log("Recipe not found.")
                 } else {
-                    recipeMenu(search, cookbook)
+                    recipeMenu(search, cookbook, keys)
                 }
                 break;
             case(3): 
@@ -88,7 +88,7 @@ function cookbookMenu(cookbook: Cookbook, keys: CookbookKeys): void {
  * @param {Recipe} recipe the current recipe
  * @param {Cookbook} cookbook the cookbook hashtable
  */
-function recipeMenu(recipe: Recipe, cookbook: Cookbook): void {
+function recipeMenu(recipe: Recipe, cookbook: Cookbook, keys: CookbookKeys): void {
     let active = true
     while(active) {
         line()
@@ -100,7 +100,7 @@ function recipeMenu(recipe: Recipe, cookbook: Cookbook): void {
                 viewRecipe(recipe)
                 break
             case(2):
-                editRecipe(recipe, cookbook)
+                editRecipe(recipe, cookbook, keys)
                 break
             case(3):
                 active = false
@@ -115,8 +115,9 @@ function recipeMenu(recipe: Recipe, cookbook: Cookbook): void {
  * Menu for choosing how to edit recipe
  * @param {Recipe} recipe the current recipe
  * @param {Cookbook} cookbook the cookbook hashtable
+ * @param {CookbookKeys} keys id and name for every recipe
  */
-function editRecipe(recipe: Recipe, cookbook: Cookbook): void {  
+function editRecipe(recipe: Recipe, cookbook: Cookbook, keys: CookbookKeys): void {  
     viewRecipe(recipe)
     let active = true
     while(active) {
@@ -137,11 +138,15 @@ function editRecipe(recipe: Recipe, cookbook: Cookbook): void {
                                                       [])
                     break;
                 case(3):
-                    console.log("Current name: " 
-                                + recipe.name)
-                    recipe.name = validAnswer("New name: > ", 
-                                              "", 
-                                              [])
+                let newName = validAnswer("New name: > ", 
+                    "", 
+                    [])
+                        recipe.name = newName
+                        for(let i = 0; i < keys.length; i ++) {
+                        if(tail(keys[i]) === recipe.id) {
+                        keys[i] = pair(newName, tail(keys[i]))
+                        }
+                    }
                     break;
                 case(4):
                     active = false

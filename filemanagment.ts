@@ -161,7 +161,7 @@ export function saveCookbook(cookbook : Cookbook, keys : CookbookKeys) : void {
                             '.json')) {
             if (validAnswer("A cookbook with the name " +
                             cookbookName +
-                            " already exists, do you wish to overwrite it? > ",
+                            " already exists, do you wish to update it? (y/n) > ",
                             "opt",
                             ["y", "n"]).toLowerCase() === "n") {
                 console.log("Saving cancelled.")
