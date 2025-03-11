@@ -1,9 +1,8 @@
 import * as PromptSync from "prompt-sync";
-import {pair, head, tail, Pair,} from './lib/list';
+import { Pair } from './lib/list';
 import { hash_id, ph_empty, type ProbingHashtable} from "./lib/hashtables";
-import {viewRecipe, createRecipe, searchRecipe, Recipe, Measurements, Ingredients} from "../Project-group-21/lib/recipe";
-import {questionnaire, changeUnits, units, validAnswer, line, round} from "./lib/utilities";
-import {convert, Unit} from 'convert';
+import {viewRecipe, createRecipe, searchRecipe, Recipe } from "../Project-group-21/lib/recipe";
+import {questionnaire, changeUnits, validAnswer, line, round} from "./lib/utilities";
 import {changeServing, removeIngredient, changeIngredients, addIngredient, viewIngredients} from "../Project-group-21/lib/ingredients"
 import { loadCookbook, saveCookbook } from "./filemanagment";
 

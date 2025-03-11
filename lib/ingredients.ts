@@ -1,9 +1,8 @@
 import {pair, head, tail, Pair,} from './list';
 import * as PromptSync from "prompt-sync";
-import {convert, Unit, BestKind} from 'convert';
 import {Recipe, viewRecipe} from "../lib/recipe"
 import { Cookbook } from '../main';
-import { unitstring, units, changeUnits, validAnswer, stringToUnit, round} from './utilities';
+import { changeUnits, validAnswer, stringToUnit, round} from './utilities';
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 

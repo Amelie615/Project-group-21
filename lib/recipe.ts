@@ -1,10 +1,10 @@
 import {pair, head, tail, Pair,} from './list';
 import {ph_insert, ph_lookup} from "./hashtables";
 import * as PromptSync from "prompt-sync";
-import {questionnaire, IDGenerator, units, changeUnits, validAnswer, line } from './utilities';
-import {convert, Unit, BestKind} from 'convert';
+import {questionnaire, IDGenerator, validAnswer, line } from './utilities';
+import { Unit, BestKind} from 'convert';
 import { makeIngredient, viewIngredients } from './ingredients';
-import { ProbingHashtable } from './hashtables';
+
 import { Cookbook, CookbookKeys } from "../main";
 
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });

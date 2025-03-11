@@ -2,8 +2,7 @@ import * as PromptSync from "prompt-sync";
 import {convert, Unit, BestKind} from 'convert';
 import {Recipe} from "../lib/recipe"
 import {head, tail, pair, Pair} from '../lib/list'
-import { ProbingHashtable } from "./hashtables";
-import { Cookbook, CookbookKeys } from "../main";
+import { Cookbook } from "../main";
 const prompt: PromptSync.Prompt = PromptSync({ sigint: true });
 
 export const units: Array<Unit> = ["ml", "mL", "L", "l", "g", "dl", "kg", "US fluid ounce", "cups",
